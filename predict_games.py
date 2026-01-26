@@ -103,45 +103,68 @@ def predict_match(home_team, away_team, models, df):
     }
 
 import json
+from datetime import datetime
 
 def get_next_fixtures(df):
     """
-    Simulates fetching next fixtures.
-    In a real scenario, this would check an API or the schedule in the dataframe.
-    For this demo, we'll pick distinct teams that haven't played recently or just select top teams.
-    To be robust for the website, we'll manually define a 'next round' or just predict a set of popular matchups
-    if we can't determine the exact schedule from the CSV easily.
-    Better: Let's assume we want to predict for ALL teams vs their likely next opponents. 
-    Since we don't have a schedule API, we will just generate predictions for a few key matchups 
-    or allow the Github Action to pass them in.
-    
-    For the automated website, let's predict a fixed set of 'Big 6' matchups + others, 
-    OR we can just predict a set of random matchups to show functionality.
-    
-    Actually, the best way for the website is to predict for a specific list.
-    Let's just predict a set of interesting matches for now.
+    Returns the upcoming fixtures for the next round (Jan 31 - Feb 2).
     """
-    teams = df['HomeTeam'].unique()
-    matchups = [
-        ("Arsenal", "Tottenham"),
-        ("Man City", "Liverpool"),
-        ("Chelsea", "Man United"),
-        ("Newcastle", "West Ham"),
-        ("Everton", "Aston Villa") # Assuming Aston Villa is in dataset
+    # Hardcoded for the specific upcoming round requested
+    return [
+        ("Brighton", "Everton"),
+        ("Leeds", "Arsenal"),
+        ("Wolves", "Bournemouth"), 
+        ("Chelsea", "West Ham"),
+        ("Liverpool", "Newcastle"),
+        ("Aston Villa", "Brentford"),
+        ("Man United", "Fulham"),
+        ("Nott'm Forest", "Crystal Palace"),
+        ("Tottenham", "Man City"),
+        ("Sunderland", "Burnley")
     ]
-    # Filter for teams that actually exist in our dataset
-    valid_matchups = []
-    for h, a in matchups:
-        if h in teams and a in teams:
-            valid_matchups.append((h, a))
-            
-    return valid_matchups
+
+def evaluate_past_predictions(df, models):
+    """
+    Identifies the most recent completed matches (last round) and retroactively 
+    generates predictions for them to show 'how we would have done'.
+    In a real production system, we would load SAVED predictions. 
+    Here, we simulate the 'Previous Predictions' by running the model on the just-finished games.
+    """
+    df['Date'] = pd.to_datetime(df['Date'], dayfirst=True)
+    # Get the last date present in the data
+    last_date = df['Date'].max()
+    
+    # Get all games from that last date (or last 3 days)
+    # Assuming 'today' is Jan 25, we look for games around then.
+    recent_games = df[df['Date'] >= last_date - pd.Timedelta(days=2)]
+    
+    results = []
+    for _, row in recent_games.iterrows():
+        home = row['HomeTeam']
+        away = row['AwayTeam']
+        actual_score = f"{row['FTHG']} - {row['FTAG']}"
+        
+        # Retroactive prediction
+        pred = predict_match(home, away, models, df)
+        
+        if isinstance(pred, str): continue # Error
+        
+        results.append({
+            'HomeTeam': home,
+            'AwayTeam': away,
+            'PredictedScore': pred['PredictedScore'],
+            'ActualScore': actual_score,
+            'ExpectedGoals': f"{pred['HomeGoals_Exp']:.2f} - {pred['AwayGoals_Exp']:.2f}"
+        })
+        
+    return results
 
 def main():
     parser = argparse.ArgumentParser(description="Predict EPL Match Scores")
     parser.add_argument("--home", type=str, help="Home Team Name", required=False)
     parser.add_argument("--away", type=str, help="Away Team Name", required=False)
-    parser.add_argument("--json", type=str, help="Output JSON file path", required=False)
+    parser.add_argument("--json", type=str, help="Output JSON file path for UPCOMING predictions", required=False)
+    parser.add_argument("--past-results-json", type=str, help="Output JSON file for PAST results/eval", required=False)
     args = parser.parse_args()
 
     print("Loading models and data...")
@@ -154,15 +177,12 @@ def main():
 
     teams = sorted(df['HomeTeam'].unique())
     
-    predictions = []
-
     if args.home and args.away:
         # Predict single match
         if args.home not in teams or args.away not in teams:
             print(f"Error: Invalid team name.")
             return
         result = predict_match(args.home, args.away, models, df)
-        predictions.append(result)
         
         print("\nPrediction:")
         print(f"{result['HomeTeam']} vs {result['AwayTeam']}")
@@ -170,18 +190,27 @@ def main():
         print(f"SCORE PREDICTION: {result['PredictedScore']}")
         
     elif args.json:
-        # Automated mode for website: Predict a batch of games
-        print("Generating batch predictions for website...")
-        matchups = get_next_fixtures(df)
+        # 1. Generate Upcoming Predictions
+        print("Generating upcoming predictions...")
+        next_matchups = get_next_fixtures(df)
+        predictions = []
+        for h, a in next_matchups:
+            # Check availability
+            if h in teams and a in teams:
+                result = predict_match(h, a, models, df)
+                predictions.append(result)
         
-        for h, a in matchups:
-            result = predict_match(h, a, models, df)
-            predictions.append(result)
-            
-        # Write to JSON
         with open(args.json, 'w') as f:
             json.dump(predictions, f, indent=4)
-        print(f"Predictions saved to {args.json}")
+        print(f"Upcoming predictions saved to {args.json}")
+        
+        # 2. Generate Past Results (if requested)
+        if args.past_results_json:
+            print("Generating past results evaluation...")
+            past_results = evaluate_past_predictions(df, models)
+            with open(args.past_results_json, 'w') as f:
+                json.dump(past_results, f, indent=4)
+            print(f"Past results saved to {args.past_results_json}")
 
     else:
         # Interactive Mode

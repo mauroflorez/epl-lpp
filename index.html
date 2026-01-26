@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,114 +14,189 @@
             padding: 2rem;
             margin: 0;
         }
+
         .container {
+            width: 100%;
+            max-width: 1200px;
             background-color: white;
             padding: 2rem;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            width: 100%;
         }
+
         h1 {
-            color: #37003c; /* Premier League Purple */
+            color: #37003c;
             text-align: center;
             margin-bottom: 2rem;
         }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .column h2 {
+            color: #555;
+            border-bottom: 2px solid #37003c;
+            padding-bottom: 0.5rem;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
         }
-        th, td {
-            padding: 1rem;
+
+        th,
+        td {
+            padding: 0.8rem;
             text-align: left;
             border-bottom: 1px solid #ddd;
+            font-size: 0.95rem;
         }
+
         th {
             background-color: #f8f9fa;
-            color: #555;
             font-weight: 600;
         }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
+
         .score {
             font-weight: bold;
-            font-size: 1.1em;
             color: #37003c;
         }
-        .expected {
-            color: #777;
-            font-size: 0.9em;
+
+        .actual-score {
+            font-weight: bold;
+            color: #007bff;
         }
-        .last-updated {
-            text-align: center;
-            color: #888;
-            font-size: 0.9rem;
-            margin-top: 2rem;
+
+        .correct {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .incorrect {
+            color: #dc3545;
+        }
+
+        .prediction-box {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Premier League Predictions</h1>
-        <p style="text-align: center;">AI-powered score predictions based on recent form (Poisson Regression).</p>
-        
-        <table id="predictions-table">
-            <thead>
-                <tr>
-                    <th>Match</th>
-                    <th>Predicted Score</th>
-                    <th>Expected Goals (xG)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Data will be inserted here -->
-            </tbody>
-        </table>
+
+        <div class="grid">
+            <!-- Left Column: Past Results -->
+            <div class="column">
+                <h2>Last Round Results</h2>
+                <div class="prediction-box">
+                    <table id="past-table">
+                        <thead>
+                            <tr>
+                                <th>Match</th>
+                                <th>Predicted</th>
+                                <th>Actual</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right Column: Upcoming -->
+            <div class="column">
+                <h2>Upcoming Predictions</h2>
+                <div class="prediction-box">
+                    <table id="upcoming-table">
+                        <thead>
+                            <tr>
+                                <th>Match</th>
+                                <th>Prediction</th>
+                                <th>xG</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
         <div class="last-updated" id="last-updated"></div>
     </div>
 
     <script>
-        async function loadPredictions() {
+        async function loadData() {
             try {
-                // In GitHub Pages, this file will be at the root
-                const response = await fetch('predictions.json');
-                const predictions = await response.json();
-                
-                const tableBody = document.querySelector('#predictions-table tbody');
-                tableBody.innerHTML = ''; // Clear loading state
+                // Load Upcoming
+                const predResponse = await fetch('predictions.json');
+                if (predResponse.ok) {
+                    const predictions = await predResponse.json();
+                    populateTable('#upcoming-table tbody', predictions, false);
+                }
 
-                predictions.forEach(pred => {
-                    const row = document.createElement('tr');
-                    
-                    const matchCell = document.createElement('td');
-                    matchCell.textContent = `${pred.HomeTeam} vs ${pred.AwayTeam}`;
-                    
-                    const scoreCell = document.createElement('td');
-                    scoreCell.className = 'score';
-                    scoreCell.textContent = pred.PredictedScore;
-                    
-                    const xgCell = document.createElement('td');
-                    xgCell.className = 'expected';
-                    xgCell.textContent = `${pred.HomeGoals_Exp.toFixed(2)} - ${pred.AwayGoals_Exp.toFixed(2)}`;
-                    
-                    row.appendChild(matchCell);
-                    row.appendChild(scoreCell);
-                    row.appendChild(xgCell);
-                    tableBody.appendChild(row);
-                });
+                // Load Past Results
+                const resultResponse = await fetch('past_results.json');
+                if (resultResponse.ok) {
+                    const results = await resultResponse.json();
+                    populateTable('#past-table tbody', results, true);
+                }
 
                 document.getElementById('last-updated').textContent = `Last updated: ${new Date().toLocaleDateString()}`;
 
             } catch (error) {
-                console.error("Error loading predictions:", error);
-                document.querySelector('#predictions-table tbody').innerHTML = `<tr><td colspan="3">Error loading predictions. Please check back later.</td></tr>`;
+                console.error("Error loading data:", error);
             }
         }
 
-        loadPredictions();
+        function populateTable(selector, data, isPast) {
+            const tableBody = document.querySelector(selector);
+            tableBody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+
+                const matchCell = document.createElement('td');
+                matchCell.textContent = `${item.HomeTeam} vs ${item.AwayTeam}`;
+
+                const predCell = document.createElement('td');
+                predCell.className = 'score';
+                predCell.textContent = item.PredictedScore;
+
+                row.appendChild(matchCell);
+                row.appendChild(predCell);
+
+                if (isPast) {
+                    const actualCell = document.createElement('td');
+                    actualCell.className = 'actual-score';
+                    actualCell.textContent = item.ActualScore;
+                    row.appendChild(actualCell);
+                } else {
+                    const xgCell = document.createElement('td');
+                    xgCell.style.color = '#777';
+                    xgCell.style.fontSize = '0.9em';
+                    xgCell.textContent = `${Number(item.HomeGoals_Exp).toFixed(1)} - ${Number(item.AwayGoals_Exp).toFixed(1)}`;
+                    row.appendChild(xgCell);
+                }
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        loadData();
     </script>
 </body>
+
 </html>

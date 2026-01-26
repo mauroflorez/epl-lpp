@@ -1,0 +1,72 @@
+[
+    {
+        "HomeTeam": "Man United",
+        "AwayTeam": "Man City",
+        "PredictedScore": "2 - 1",
+        "ActualScore": "2 - 0",
+        "ExpectedGoals": "1.70 - 1.05"
+    },
+    {
+        "HomeTeam": "Chelsea",
+        "AwayTeam": "Brentford",
+        "PredictedScore": "1 - 2",
+        "ActualScore": "2 - 0",
+        "ExpectedGoals": "1.19 - 1.54"
+    },
+    {
+        "HomeTeam": "Leeds",
+        "AwayTeam": "Fulham",
+        "PredictedScore": "1 - 1",
+        "ActualScore": "1 - 0",
+        "ExpectedGoals": "1.42 - 1.24"
+    },
+    {
+        "HomeTeam": "Liverpool",
+        "AwayTeam": "Burnley",
+        "PredictedScore": "2 - 1",
+        "ActualScore": "1 - 1",
+        "ExpectedGoals": "1.59 - 1.03"
+    },
+    {
+        "HomeTeam": "Sunderland",
+        "AwayTeam": "Crystal Palace",
+        "PredictedScore": "1 - 1",
+        "ActualScore": "2 - 1",
+        "ExpectedGoals": "1.47 - 1.05"
+    },
+    {
+        "HomeTeam": "Tottenham",
+        "AwayTeam": "West Ham",
+        "PredictedScore": "1 - 1",
+        "ActualScore": "1 - 2",
+        "ExpectedGoals": "1.49 - 1.11"
+    },
+    {
+        "HomeTeam": "Nott'm Forest",
+        "AwayTeam": "Arsenal",
+        "PredictedScore": "1 - 2",
+        "ActualScore": "0 - 0",
+        "ExpectedGoals": "1.11 - 1.59"
+    },
+    {
+        "HomeTeam": "Wolves",
+        "AwayTeam": "Newcastle",
+        "PredictedScore": "1 - 1",
+        "ActualScore": "0 - 0",
+        "ExpectedGoals": "1.34 - 1.36"
+    },
+    {
+        "HomeTeam": "Aston Villa",
+        "AwayTeam": "Everton",
+        "PredictedScore": "1 - 1",
+        "ActualScore": "0 - 1",
+        "ExpectedGoals": "1.43 - 1.25"
+    },
+    {
+        "HomeTeam": "Brighton",
+        "AwayTeam": "Bournemouth",
+        "PredictedScore": "2 - 1",
+        "ActualScore": "1 - 1",
+        "ExpectedGoals": "1.52 - 1.18"
+    }
+]

@@ -30,10 +30,10 @@ jobs:
       run: |
         python data_loader.py
         python feature_engineering.py
-        python predict_games.py --json predictions.json
+        python predict_games.py --json predictions.json --past-results-json past_results.json
 
     - name: Commit and Push changes
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        commit_message: "Automated: Update predictions and data"
-        file_pattern: 'data/*.csv predictions.json models/*.pkl'
+        commit_message: "Automated: Update predictions and past results"
+        file_pattern: 'data/*.csv predictions.json past_results.json models/*.pkl'

@@ -1,37 +1,72 @@
 [
     {
-        "HomeTeam": "Arsenal",
-        "AwayTeam": "Tottenham",
-        "HomeGoals_Exp": 1.8440617107629076,
-        "AwayGoals_Exp": 1.0103382025828225,
-        "PredictedScore": "2 - 1"
+        "HomeTeam": "Brighton",
+        "AwayTeam": "Everton",
+        "HomeGoals_Exp": 1.473130073384764,
+        "AwayGoals_Exp": 1.2070311870508075,
+        "PredictedScore": "1 - 1"
     },
     {
-        "HomeTeam": "Man City",
-        "AwayTeam": "Liverpool",
-        "HomeGoals_Exp": 1.3456899001192895,
-        "AwayGoals_Exp": 1.2396742156698508,
+        "HomeTeam": "Leeds",
+        "AwayTeam": "Arsenal",
+        "HomeGoals_Exp": 1.2779852958779763,
+        "AwayGoals_Exp": 1.4456465742267355,
         "PredictedScore": "1 - 1"
+    },
+    {
+        "HomeTeam": "Wolves",
+        "AwayTeam": "Bournemouth",
+        "HomeGoals_Exp": 1.520464639018594,
+        "AwayGoals_Exp": 1.1605085427706665,
+        "PredictedScore": "2 - 1"
     },
     {
         "HomeTeam": "Chelsea",
-        "AwayTeam": "Man United",
-        "HomeGoals_Exp": 1.3448243664162152,
-        "AwayGoals_Exp": 1.321549444556799,
+        "AwayTeam": "West Ham",
+        "HomeGoals_Exp": 1.5663061665130558,
+        "AwayGoals_Exp": 1.0783618068063838,
+        "PredictedScore": "2 - 1"
+    },
+    {
+        "HomeTeam": "Liverpool",
+        "AwayTeam": "Newcastle",
+        "HomeGoals_Exp": 1.3184086309240628,
+        "AwayGoals_Exp": 1.3854399581314536,
         "PredictedScore": "1 - 1"
     },
     {
-        "HomeTeam": "Newcastle",
-        "AwayTeam": "West Ham",
-        "HomeGoals_Exp": 1.9128241324554374,
-        "AwayGoals_Exp": 0.9678426215099241,
+        "HomeTeam": "Aston Villa",
+        "AwayTeam": "Brentford",
+        "HomeGoals_Exp": 1.197387738292188,
+        "AwayGoals_Exp": 1.5633672188300354,
+        "PredictedScore": "1 - 2"
+    },
+    {
+        "HomeTeam": "Man United",
+        "AwayTeam": "Fulham",
+        "HomeGoals_Exp": 1.6140036528078725,
+        "AwayGoals_Exp": 1.1455377324803289,
         "PredictedScore": "2 - 1"
     },
     {
-        "HomeTeam": "Everton",
-        "AwayTeam": "Aston Villa",
-        "HomeGoals_Exp": 1.5709126334244528,
-        "AwayGoals_Exp": 1.1475238038699163,
-        "PredictedScore": "2 - 1"
+        "HomeTeam": "Nott'm Forest",
+        "AwayTeam": "Crystal Palace",
+        "HomeGoals_Exp": 1.3712387548464482,
+        "AwayGoals_Exp": 1.1039670960441466,
+        "PredictedScore": "1 - 1"
+    },
+    {
+        "HomeTeam": "Tottenham",
+        "AwayTeam": "Man City",
+        "HomeGoals_Exp": 1.4204455311516484,
+        "AwayGoals_Exp": 1.1601827530455218,
+        "PredictedScore": "1 - 1"
+    },
+    {
+        "HomeTeam": "Sunderland",
+        "AwayTeam": "Burnley",
+        "HomeGoals_Exp": 1.459453404210532,
+        "AwayGoals_Exp": 1.1020391661573732,
+        "PredictedScore": "1 - 1"
     }
 ]
