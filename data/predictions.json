@@ -1,0 +1,79 @@
+[
+    {
+        "HomeTeam": "Everton",
+        "AwayTeam": "Leeds",
+        "HomeGoals_Exp": 1.69,
+        "AwayGoals_Exp": 1.55,
+        "PredictedScore": "2 - 2"
+    },
+    {
+        "HomeTeam": "Leeds",
+        "AwayTeam": "Arsenal",
+        "HomeGoals_Exp": 1.33,
+        "AwayGoals_Exp": 1.1,
+        "PredictedScore": "1 - 1"
+    },
+    {
+        "HomeTeam": "Wolves",
+        "AwayTeam": "Bournemouth",
+        "HomeGoals_Exp": 1.41,
+        "AwayGoals_Exp": 2.98,
+        "PredictedScore": "1 - 3"
+    },
+    {
+        "HomeTeam": "Brighton",
+        "AwayTeam": "Everton",
+        "HomeGoals_Exp": 1.01,
+        "AwayGoals_Exp": 0.77,
+        "PredictedScore": "1 - 1"
+    },
+    {
+        "HomeTeam": "Chelsea",
+        "AwayTeam": "West Ham",
+        "HomeGoals_Exp": 1.1,
+        "AwayGoals_Exp": 0.88,
+        "PredictedScore": "1 - 1"
+    },
+    {
+        "HomeTeam": "Liverpool",
+        "AwayTeam": "Newcastle",
+        "HomeGoals_Exp": 1.14,
+        "AwayGoals_Exp": 0.84,
+        "PredictedScore": "1 - 1"
+    },
+    {
+        "HomeTeam": "Aston Villa",
+        "AwayTeam": "Brentford",
+        "HomeGoals_Exp": 1.91,
+        "AwayGoals_Exp": 0.59,
+        "PredictedScore": "2 - 1"
+    },
+    {
+        "HomeTeam": "Man United",
+        "AwayTeam": "Fulham",
+        "HomeGoals_Exp": 1.86,
+        "AwayGoals_Exp": 1.21,
+        "PredictedScore": "2 - 1"
+    },
+    {
+        "HomeTeam": "Nott'm Forest",
+        "AwayTeam": "Crystal Palace",
+        "HomeGoals_Exp": 0.8,
+        "AwayGoals_Exp": 1.63,
+        "PredictedScore": "1 - 2"
+    },
+    {
+        "HomeTeam": "Tottenham",
+        "AwayTeam": "Man City",
+        "HomeGoals_Exp": 1.51,
+        "AwayGoals_Exp": 2.4,
+        "PredictedScore": "2 - 2"
+    },
+    {
+        "HomeTeam": "Sunderland",
+        "AwayTeam": "Burnley",
+        "HomeGoals_Exp": 2.0,
+        "AwayGoals_Exp": 0.82,
+        "PredictedScore": "2 - 1"
+    }
+]

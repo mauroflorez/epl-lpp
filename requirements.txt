@@ -5,3 +5,6 @@ xgboost
 scikit-learn
 statsmodels
 tabulate
+bambi
+arviz
+pymc

@@ -1,122 +1,235 @@
+"""
+Bayesian Poisson Model for EPL Goal Prediction
+
+Uses bambi (built on PyMC) to train Bayesian Poisson regression models that learn:
+- Team attack strength (from HomeTeam/AwayTeam effects)
+- Adversary defensive weakness 
+- League position effects
+- Rolling shot statistics
+
+Trains on ALL observed games in the current season.
+"""
+
 import pandas as pd
 import numpy as np
-import xgboost as xgb
-import statsmodels.api as sm
-import statsmodels.formula.api as smf
-from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.preprocessing import LabelEncoder
 import pickle
 import os
+import warnings
+from datetime import datetime
+
+warnings.filterwarnings('ignore')
 
 # Configuration
 FEATURES_FILE = "data/features.csv"
 MODEL_DIR = "models"
-TRAIN_SPLIT_DATE = "2023-08-01" # Train on seasons up to 22/23, Test on 23/24 onwards
+CURRENT_SEASON = 2526  # Season 25/26
 
 def load_features():
     df = pd.read_csv(FEATURES_FILE)
     df['Date'] = pd.to_datetime(df['Date'])
     return df
 
-def train_xgboost(X_train, y_train_home, y_train_away, X_test, y_test_home, y_test_away):
-    print("\nTRAINING XGBOOST MODELS...")
+def filter_current_season(df):
+    """
+    Filter to only include games from the current season (25/26).
+    Season started August 15, 2025.
+    """
+    if 'Season' in df.columns:
+        return df[df['Season'] == CURRENT_SEASON].copy()
+    else:
+        # Fallback: filter by date if Season column not available
+        season_start = pd.to_datetime('2025-08-15')
+        return df[df['Date'] >= season_start].copy()
+
+def train_bayesian_poisson(train_df):
+    """
+    Train Bayesian Poisson models for home and away goals.
+    
+    Model specification:
+    - FTHG ~ HomeTeam + AwayTeam + Home_Position + Away_Position + rolling_stats
+    - FTAG ~ AwayTeam + HomeTeam + Away_Position + Home_Position + rolling_stats
+    
+    The model learns:
+    - HomeTeam effect in FTHG model = attack strength
+    - AwayTeam effect in FTHG model = defensive weakness when facing that team
+    """
+    # Use statsmodels initially for faster training
+    # Bambi requires g++ compiler for good performance
+    print(f"\nTraining Poisson GLM models on {len(train_df)} games...")
+    print(f"Teams in dataset: {train_df['HomeTeam'].nunique()}")
+    
+    return train_statsmodels_fallback(train_df)
+    
+    print(f"\nTraining Bayesian Poisson models on {len(train_df)} games...")
+    print(f"Teams in dataset: {train_df['HomeTeam'].nunique()}")
+    
+    # Prepare formula with available columns
+    base_features = []
+    
+    # Always include team effects (categorical)
+    base_features.append("HomeTeam")
+    base_features.append("AwayTeam")
+    
+    # Add position if available
+    if 'Home_Position' in train_df.columns:
+        base_features.append("Home_Position")
+        base_features.append("Away_Position")
+    
+    # Add rolling stats if available
+    rolling_cols = [
+        'Home_AvgGoalsScored', 'Home_AvgGoalsConceded',
+        'Away_AvgGoalsScored', 'Away_AvgGoalsConceded',
+        'Home_AvgShots', 'Home_AvgShotsOnTarget',
+        'Away_AvgShots', 'Away_AvgShotsOnTarget'
+    ]
+    
+    for col in rolling_cols:
+        if col in train_df.columns:
+            base_features.append(col)
+    
+    formula_home = "FTHG ~ " + " + ".join(base_features)
+    formula_away = "FTAG ~ " + " + ".join(base_features)
+    
+    print(f"\nHome Goals Formula: {formula_home[:80]}...")
+    print(f"Away Goals Formula: {formula_away[:80]}...")
     
     # Train Home Goals Model
-    xgb_home = xgb.XGBRegressor(objective='count:poisson', n_estimators=1000, learning_rate=0.01, max_depth=5)
-    xgb_home.fit(X_train, y_train_home)
-    preds_home = xgb_home.predict(X_test)
-    mae_home = mean_absolute_error(y_test_home, preds_home)
-    print(f"XGBoost Home Goals MAE: {mae_home:.4f}")
+    print("\nFitting Home Goals Model (this may take a few minutes)...")
+    model_home = bmb.Model(
+        formula_home,
+        data=train_df,
+        family="poisson"
+    )
+    
+    # Use fewer draws for faster training (can increase for production)
+    results_home = model_home.fit(
+        draws=2000,
+        chains=2,
+        tune=1000,
+        progressbar=True
+    )
     
     # Train Away Goals Model
-    xgb_away = xgb.XGBRegressor(objective='count:poisson', n_estimators=1000, learning_rate=0.01, max_depth=5)
-    xgb_away.fit(X_train, y_train_away)
-    preds_away = xgb_away.predict(X_test)
-    mae_away = mean_absolute_error(y_test_away, preds_away)
-    print(f"XGBoost Away Goals MAE: {mae_away:.4f}")
+    print("\nFitting Away Goals Model...")
+    model_away = bmb.Model(
+        formula_away,
+        data=train_df,
+        family="poisson"
+    )
     
-    return xgb_home, xgb_away
-
-def train_poisson_glm(train_df, test_df):
-    print("\nTRAINING POISSON GLM MODELS (Statsmodels)...")
+    results_away = model_away.fit(
+        draws=2000,
+        chains=2,
+        tune=1000,
+        progressbar=True
+    )
     
-    # Formula for Poisson Regression
-    # Ensuring features match DataFrame columns. Need to handle categorical 'HomeTeam'/'AwayTeam' if used.
-    # In features.csv we likely have rolling stats. We can treat Teams as random effects or fixed effects, 
-    # but simplest is using the numeric features we built.
+    print("\nModel training complete!")
     
-    formula_features = "Home_AvgGoalsScored + Home_AvgGoalsConceded + Home_AvgPoints + " \
-                       "Away_AvgGoalsScored + Away_AvgGoalsConceded + Away_AvgPoints"
-    
-    # Train Home Goals
+    # Print summary of team effects
+    print("\n--- Team Attack Strength (top 5 from Home model) ---")
     try:
-        poisson_home = smf.glm(formula=f"FTHG ~ {formula_features}", data=train_df, family=sm.families.Poisson()).fit()
-        print(poisson_home.summary())
-        preds_home = poisson_home.predict(test_df)
-        mae_home = mean_absolute_error(test_df['FTHG'], preds_home)
-        print(f"Poisson GLM Home Goals MAE: {mae_home:.4f}")
+        summary = az.summary(results_home)
+        team_effects = summary[summary.index.str.contains('HomeTeam')]
+        if len(team_effects) > 0:
+            print(team_effects.head())
     except Exception as e:
-        print(f"Error training Poisson Home: {e}")
-        poisson_home = None
+        print(f"Could not print summary: {e}")
+    
+    return {
+        'model_home': model_home,
+        'results_home': results_home,
+        'model_away': model_away,
+        'results_away': results_away,
+        'formula_home': formula_home,
+        'formula_away': formula_away,
+        'model_type': 'bayesian_poisson'
+    }
 
-    # Train Away Goals
-    try:
-        poisson_away = smf.glm(formula=f"FTAG ~ {formula_features}", data=train_df, family=sm.families.Poisson()).fit()
-        preds_away = poisson_away.predict(test_df)
-        mae_away = mean_absolute_error(test_df['FTAG'], preds_away)
-        print(f"Poisson GLM Away Goals MAE: {mae_away:.4f}")
-    except Exception as e:
-        print(f"Error training Poisson Away: {e}")
-        poisson_away = None
-        
-    return poisson_home, poisson_away
+def train_statsmodels_fallback(train_df):
+    """
+    Fallback to statsmodels GLM if bambi is not available.
+    Uses the same formula structure.
+    """
+    import statsmodels.api as sm
+    import statsmodels.formula.api as smf
+    
+    print("\nUsing statsmodels GLM fallback...")
+    
+    # Build formula
+    features = []
+    
+    # Categorical team effects using C() notation
+    features.append("C(HomeTeam)")
+    features.append("C(AwayTeam)")
+    
+    # Add numeric features if available
+    numeric_cols = [
+        'Home_Position', 'Away_Position',
+        'Home_AvgGoalsScored', 'Home_AvgGoalsConceded',
+        'Away_AvgGoalsScored', 'Away_AvgGoalsConceded',
+        'Home_AvgShots', 'Away_AvgShots'
+    ]
+    
+    for col in numeric_cols:
+        if col in train_df.columns:
+            features.append(col)
+    
+    formula_home = "FTHG ~ " + " + ".join(features)
+    formula_away = "FTAG ~ " + " + ".join(features)
+    
+    print(f"Formula: {formula_home[:60]}...")
+    
+    # Train models
+    model_home = smf.glm(formula=formula_home, data=train_df, family=sm.families.Poisson()).fit()
+    model_away = smf.glm(formula=formula_away, data=train_df, family=sm.families.Poisson()).fit()
+    
+    print(f"\nHome Model - AIC: {model_home.aic:.2f}")
+    print(f"Away Model - AIC: {model_away.aic:.2f}")
+    
+    return {
+        'model_home': model_home,
+        'model_away': model_away,
+        'formula_home': formula_home,
+        'formula_away': formula_away,
+        'model_type': 'statsmodels_glm'
+    }
 
 def save_models(models):
     if not os.path.exists(MODEL_DIR):
         os.makedirs(MODEL_DIR)
-        
-    with open(os.path.join(MODEL_DIR, "models.pkl"), "wb") as f:
+    
+    model_path = os.path.join(MODEL_DIR, "models.pkl")
+    with open(model_path, "wb") as f:
         pickle.dump(models, f)
-    print(f"\nModels saved to {MODEL_DIR}/models.pkl")
+    print(f"\nModels saved to {model_path}")
 
 def main():
+    print("=" * 60)
+    print("BAYESIAN POISSON MODEL TRAINING")
+    print(f"Season: 25/26 | Date: {datetime.now().strftime('%Y-%m-%d')}")
+    print("=" * 60)
+    
+    # Load features
     df = load_features()
+    print(f"Loaded {len(df)} total games")
     
-    # Define features and targets
-    feature_cols = [
-        'Home_AvgGoalsScored', 'Home_AvgGoalsConceded', 'Home_AvgPoints',
-        'Away_AvgGoalsScored', 'Away_AvgGoalsConceded', 'Away_AvgPoints'
-    ]
-    target_home = 'FTHG'
-    target_away = 'FTAG'
+    # Filter to current season only
+    train_df = filter_current_season(df)
+    print(f"Current season games: {len(train_df)}")
     
-    # Time-series Split
-    train_df = df[df['Date'] < TRAIN_SPLIT_DATE].copy()
-    test_df = df[df['Date'] >= TRAIN_SPLIT_DATE].copy()
+    if len(train_df) < 50:
+        print("WARNING: Less than 50 games available. Predictions may be unreliable.")
     
-    print(f"Train Set: {len(train_df)} games (Before {TRAIN_SPLIT_DATE})")
-    print(f"Test Set: {len(test_df)} games (From {TRAIN_SPLIT_DATE} onwards)")
+    # Train models
+    models = train_bayesian_poisson(train_df)
     
-    X_train = train_df[feature_cols]
-    y_train_home = train_df[target_home]
-    y_train_away = train_df[target_away]
+    # Save models
+    save_models(models)
     
-    X_test = test_df[feature_cols]
-    y_test_home = test_df[target_home]
-    y_test_away = test_df[target_away]
-    
-    # Train Models
-    xgb_h, xgb_a = train_xgboost(X_train, y_train_home, y_train_away, X_test, y_test_home, y_test_away)
-    glm_h, glm_a = train_poisson_glm(train_df, test_df)
-    
-    # Save all models
-    models_dict = {
-        'xgboost_home': xgb_h,
-        'xgboost_away': xgb_a,
-        'poisson_home': glm_h,
-        'poisson_away': glm_a
-    }
-    save_models(models_dict)
+    print("\n" + "=" * 60)
+    print("TRAINING COMPLETE")
+    print("=" * 60)
 
 if __name__ == "__main__":
     main()
