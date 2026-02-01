@@ -6,20 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EPL Score Predictor</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             display: flex;
             justify-content: center;
-            padding: 2rem;
+            padding: 1.5rem;
             margin: 0;
         }
 
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             background-color: white;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -28,43 +32,59 @@
             color: #37003c;
             text-align: center;
             margin-bottom: 0.5rem;
+            font-size: 1.8rem;
         }
 
         h2 {
             color: #37003c;
-            border-bottom: 2px solid #37003c;
-            padding-bottom: 0.5rem;
-            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            margin: 0 0 0.5rem 0;
         }
 
         .matchday-badge {
             display: inline-block;
             background: linear-gradient(135deg, #37003c 0%, #00ff85 100%);
             color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.9rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
             font-weight: bold;
-            margin-left: 0.5rem;
+            margin-left: 0.3rem;
+        }
+
+        /* Two Column Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .column {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 1rem;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 0.5rem;
+            font-size: 0.85rem;
         }
 
         th,
         td {
-            padding: 0.7rem;
+            padding: 0.5rem 0.4rem;
             text-align: left;
-            border-bottom: 1px solid #ddd;
-            font-size: 0.9rem;
+            border-bottom: 1px solid #eee;
         }
 
         th {
             background-color: #f8f9fa;
             font-weight: 600;
+            font-size: 0.8rem;
+            color: #555;
         }
 
         .score {
@@ -82,21 +102,6 @@
             font-style: italic;
         }
 
-        .correct {
-            color: #28a745;
-        }
-
-        .incorrect {
-            color: #dc3545;
-        }
-
-        .prediction-box {
-            background: #fff;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-
         .clickable-row {
             cursor: pointer;
             transition: background-color 0.2s;
@@ -109,8 +114,7 @@
         /* Accuracy Banner */
         .accuracy-box {
             text-align: center;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
+            padding: 0.8rem;
             background: linear-gradient(135deg, #37003c 0%, #00ff85 100%);
             border-radius: 8px;
             color: white;
@@ -138,7 +142,7 @@
             background: white;
             padding: 1.5rem;
             border-radius: 12px;
-            max-width: 450px;
+            max-width: 420px;
             width: 90%;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
@@ -153,27 +157,28 @@
         .modal-header h3 {
             margin: 0;
             color: #37003c;
+            font-size: 1rem;
         }
 
         .modal-close {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             cursor: pointer;
             color: #999;
         }
 
         .heatmap {
             display: grid;
-            grid-template-columns: 40px repeat(6, 1fr);
+            grid-template-columns: 30px repeat(6, 1fr);
             gap: 2px;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
         }
 
         .heatmap-cell {
-            padding: 8px 4px;
+            padding: 6px 2px;
             text-align: center;
-            border-radius: 4px;
+            border-radius: 3px;
             font-weight: 500;
         }
 
@@ -190,18 +195,36 @@
         }
 
         .heatmap-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #666;
             text-align: center;
-            margin-top: 0.5rem;
+            margin-top: 0.3rem;
         }
 
-        @media (max-width: 768px) {
+        .info-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #37003c;
+            font-size: 0.85rem;
+        }
 
-            th,
-            td {
-                padding: 0.5rem;
-                font-size: 0.8rem;
+        .info-section h3 {
+            color: #37003c;
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+        }
+
+        .info-section p {
+            color: #666;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -209,64 +232,60 @@
 
 <body>
     <div class="container">
-        <h1>Premier League Predictions</h1>
+        <h1>⚽ Premier League Predictions</h1>
 
         <div class="accuracy-box">
-            <span style="font-size: 1.1rem;">Winner Prediction Accuracy:</span>
+            <span>Winner Prediction Accuracy:</span>
             <span id="accuracy-value"
-                style="font-size: 1.5rem; font-weight: bold; margin-left: 0.5rem;">Loading...</span>
-            <span id="accuracy-detail" style="font-size: 0.9rem; margin-left: 0.5rem; opacity: 0.9;"></span>
+                style="font-size: 1.3rem; font-weight: bold; margin-left: 0.5rem;">Loading...</span>
+            <span id="accuracy-detail" style="font-size: 0.85rem; margin-left: 0.5rem; opacity: 0.9;"></span>
         </div>
 
-        <!-- Last Matchday Results -->
-        <h2>Last Matchday <span class="matchday-badge" id="past-matchday-badge">#23</span></h2>
-        <div class="prediction-box">
-            <table id="past-table">
-                <thead>
-                    <tr>
-                        <th>Match</th>
-                        <th>Pred</th>
-                        <th>H/D/A %</th>
-                        <th>Actual</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <div class="grid">
+            <!-- Left: Last Matchday -->
+            <div class="column">
+                <h2>📊 Last Matchday <span class="matchday-badge" id="past-matchday-badge">#23</span></h2>
+                <table id="past-table">
+                    <thead>
+                        <tr>
+                            <th>Match</th>
+                            <th>Pred</th>
+                            <th>H/D/A %</th>
+                            <th>Actual</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Right: Current Matchday -->
+            <div class="column">
+                <h2>🔮 Current Matchday <span class="matchday-badge" id="current-matchday-badge">#24</span></h2>
+                <p style="font-size: 0.75rem; color: #888; margin: -0.3rem 0 0.5rem 0;">Click row for heatmap</p>
+                <table id="current-table">
+                    <thead>
+                        <tr>
+                            <th>Match</th>
+                            <th>Date PT</th>
+                            <th>Pred</th>
+                            <th>H/D/A %</th>
+                            <th>Actual</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Current Matchday -->
-        <h2>Current Matchday <span class="matchday-badge" id="current-matchday-badge">#24</span></h2>
-        <p style="font-size: 0.85rem; color: #888; margin-top: -0.5rem;">Click a row to see probability heatmap</p>
-        <div class="prediction-box">
-            <table id="current-table">
-                <thead>
-                    <tr>
-                        <th>Match</th>
-                        <th>Date</th>
-                        <th>Pred</th>
-                        <th>H/D/A %</th>
-                        <th>Actual</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+        <div id="last-updated" style="color: #999; font-size: 0.8rem; margin-top: 1rem; text-align: center;"></div>
 
-        <div id="last-updated" style="color: #999; font-size: 0.85rem; margin-top: 1rem;"></div>
-
-        <!-- How It Works -->
-        <div
-            style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #37003c;">
-            <h2 style="color: #37003c; margin-top: 0;">How It Works</h2>
-            <p style="color: #666; line-height: 1.6;">
-                We use a <strong>Poisson regression model</strong> trained on the current season to predict expected
-                goals.
-                The H/D/A % column shows the probability of Home Win / Draw / Away Win based on the Poisson
-                distribution.
-                Click any row to see the full probability heatmap for all scorelines.
-            </p>
-            <p style="color: #999; font-size: 0.85rem; margin-top: 1rem; font-style: italic;">
-                ⚠️ This is an experimental project for learning purposes.
+        <div class="info-section">
+            <h3>📈 How It Works</h3>
+            <p>
+                Our <strong>Poisson regression model</strong> predicts expected goals based on team attack/defense
+                strength.
+                The H/D/A % shows probability of Home Win / Draw / Away Win.
+                Click any current matchday row to see the detailed scoreline probability heatmap.
             </p>
         </div>
     </div>
@@ -278,7 +297,7 @@
                 <h3 id="modal-title">Probability Heatmap</h3>
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
-            <div class="heatmap-label" style="margin-bottom: 0.3rem;"><strong>Away Goals →</strong></div>
+            <div class="heatmap-label"><strong>Away Goals →</strong></div>
             <div class="heatmap" id="heatmap-grid"></div>
             <div class="heatmap-label"><strong>↑ Home Goals</strong></div>
         </div>
@@ -315,35 +334,37 @@
                     const acc = await accResponse.json();
                     document.getElementById('accuracy-value').textContent = acc.accuracy + '%';
                     document.getElementById('accuracy-detail').textContent =
-                        `(${acc.correct}/${acc.evaluated} correct, ${acc.pending} pending)`;
+                        `(${acc.correct}/${acc.evaluated} correct)`;
                 } else {
                     document.getElementById('accuracy-value').textContent = 'N/A';
                 }
 
-                document.getElementById('last-updated').textContent = `Last updated: ${new Date().toLocaleDateString()}`;
+                document.getElementById('last-updated').textContent = `Last updated: ${new Date().toLocaleString()}`;
             } catch (error) {
                 console.error("Error loading data:", error);
             }
         }
 
-        function formatDate(dateStr) {
+        function formatDate(dateStr, timeStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr + 'T12:00:00');
             const day = date.getDate().toString().padStart(2, '0');
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            return `${day}/${month}`;
+            let result = `${day}/${month}`;
+            if (timeStr) result += ` ${timeStr}`;
+            return result;
         }
 
         function formatWinProbs(winProbs) {
-            if (!winProbs) return '-';
+            if (!winProbs) return '<span style="color:#999;">-</span>';
             const h = winProbs.H;
             const d = winProbs.D;
             const a = winProbs.A;
             const maxProb = Math.max(h, d, a);
-            const hStyle = h === maxProb ? 'font-weight:bold;color:#28a745;' : 'color:#666;';
-            const dStyle = d === maxProb ? 'font-weight:bold;color:#ffc107;' : 'color:#666;';
-            const aStyle = a === maxProb ? 'font-weight:bold;color:#dc3545;' : 'color:#666;';
-            return `<span style="${hStyle}">${h}</span> / <span style="${dStyle}">${d}</span> / <span style="${aStyle}">${a}</span>`;
+            const hStyle = h === maxProb ? 'font-weight:bold;color:#28a745;' : 'color:#888;';
+            const dStyle = d === maxProb ? 'font-weight:bold;color:#ffc107;' : 'color:#888;';
+            const aStyle = a === maxProb ? 'font-weight:bold;color:#dc3545;' : 'color:#888;';
+            return `<span style="${hStyle}">${h}</span>/<span style="${dStyle}">${d}</span>/<span style="${aStyle}">${a}</span>`;
         }
 
         function populatePastTable(data) {
@@ -357,9 +378,9 @@
 
                 row.innerHTML = `
                     <td>${home} vs ${away}</td>
-                    <td class="score">${item.PredictedScore}</td>
-                    <td style="font-size:0.85em;">${formatWinProbs(item.WinProbs)}</td>
-                    <td class="actual-score">${item.Actual || item.ActualScore}</td>
+                    <td class="score">${item.PredictedScore || '-'}</td>
+                    <td style="font-size:0.8em;">${formatWinProbs(item.WinProbs)}</td>
+                    <td class="actual-score">${item.Actual || item.ActualScore || '-'}</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -376,12 +397,13 @@
 
                 const actual = item.Actual || '-';
                 const actualClass = actual === '-' ? 'pending' : 'actual-score';
+                const dateDisplay = formatDate(item.MatchDate, item.MatchTime_PT);
 
                 row.innerHTML = `
                     <td>${item.HomeTeam} vs ${item.AwayTeam}</td>
-                    <td>${formatDate(item.MatchDate)}</td>
+                    <td>${dateDisplay}</td>
                     <td class="score">${item.PredictedScore}</td>
-                    <td style="font-size:0.85em;">${formatWinProbs(item.WinProbs)}</td>
+                    <td style="font-size:0.8em;">${formatWinProbs(item.WinProbs)}</td>
                     <td class="${actualClass}">${actual}</td>
                 `;
                 tableBody.appendChild(row);
@@ -399,13 +421,11 @@
             const grid = document.getElementById('heatmap-grid');
             grid.innerHTML = '';
 
-            // Header row
             grid.innerHTML += '<div class="heatmap-cell"></div>';
             for (let a = 0; a <= 5; a++) {
                 grid.innerHTML += `<div class="heatmap-cell heatmap-header">${a}</div>`;
             }
 
-            // Data rows
             for (let h = 0; h <= 5; h++) {
                 grid.innerHTML += `<div class="heatmap-cell heatmap-row-header">${h}</div>`;
                 for (let a = 0; a <= 5; a++) {

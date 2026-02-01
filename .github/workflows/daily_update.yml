@@ -34,6 +34,11 @@ jobs:
         python predict_games.py --json predictions.json --past-results-json past_results.json
         python track_predictions.py
 
+    - name: Update with live results from API
+      run: |
+        python fixture_scraper.py --update-actuals predictions.json
+      continue-on-error: true
+
     - name: Commit and Push changes
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
