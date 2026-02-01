@@ -30,9 +30,24 @@
 
         h1 {
             color: #37003c;
-            text-align: center;
-            margin-bottom: 0.5rem;
+            /* text-align: center; Removed as handled by flex container */
+            margin: 0;
+            /* Remove margin to align better in flex */
             font-size: 1.8rem;
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+            border-radius: 8px;
         }
 
         h2 {
@@ -309,7 +324,10 @@
 
 <body>
     <div class="container">
-        <h1>⚽ Premier League Predictions</h1>
+        <div class="header-container">
+            <img src="epl-lpp.jpg" alt="Logo" class="logo">
+            <h1>Premier League Predictions</h1>
+        </div>
 
         <div class="accuracy-box">
             <span>Winner Prediction Accuracy:</span>
