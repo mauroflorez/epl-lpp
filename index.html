@@ -319,31 +319,31 @@
         </div>
 
         <div class="grid">
-            <!-- Left: Last Matchday -->
+            <!-- Left: Current Matchday (FIRST) -->
             <div class="column">
-                <h2>📊 Last Matchday <span class="matchday-badge" id="past-matchday-badge">#23</span></h2>
-                <table id="past-table">
+                <h2>🔮 Current Matchday <span class="matchday-badge" id="current-matchday-badge">#24</span></h2>
+                <p style="font-size: 0.75rem; color: #888; margin: -0.3rem 0 0.5rem 0;">🔍 Click row for heatmap</p>
+                <table id="current-table">
                     <thead>
                         <tr>
                             <th>Match</th>
                             <th>Pred</th>
                             <th>H/D/A %</th>
                             <th>Actual</th>
+                            <th>Date</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
 
-            <!-- Right: Current Matchday -->
+            <!-- Right: Last Matchday (SECOND) -->
             <div class="column">
-                <h2>🔮 Current Matchday <span class="matchday-badge" id="current-matchday-badge">#24</span></h2>
-                <p style="font-size: 0.75rem; color: #888; margin: -0.3rem 0 0.5rem 0;">Click row for heatmap</p>
-                <table id="current-table">
+                <h2>📊 Last Matchday <span class="matchday-badge" id="past-matchday-badge">#23</span></h2>
+                <table id="past-table">
                     <thead>
                         <tr>
                             <th>Match</th>
-                            <th>Date</th>
                             <th>Pred</th>
                             <th>H/D/A %</th>
                             <th>Actual</th>
@@ -497,10 +497,10 @@
 
                 row.innerHTML = `
                     <td>${item.HomeTeam} vs ${item.AwayTeam}</td>
-                    <td>${dateDisplay}</td>
                     <td class="score">${item.PredictedScore}</td>
                     <td style="font-size:0.8em;">${formatWinProbs(item.WinProbs)}</td>
                     <td class="${actualClass}">${actual}</td>
+                    <td>${dateDisplay}</td>
                 `;
                 tableBody.appendChild(row);
             });
