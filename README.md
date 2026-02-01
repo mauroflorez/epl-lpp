@@ -1,4 +1,4 @@
-# EPL Match Prediction
+# epl-lpp: EPL Match Prediction
 
 > ⚠️ **Disclaimer**: This is an experimental project I had in mind for a while but didn't have time to implement. I'm now building it with the help of AI (Antigravity/Claude). **This is purely for testing and learning purposes - predictions should NOT be trusted for any real decisions!**
 
