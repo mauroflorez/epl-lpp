@@ -71,19 +71,149 @@
             color: #007bff;
         }
 
-        .correct {
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .incorrect {
-            color: #dc3545;
-        }
-
         .prediction-box {
             background: #fff;
             border: 1px solid #eee;
             border-radius: 8px;
+        }
+
+        /* Clickable prediction rows */
+        .clickable-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .clickable-row:hover {
+            background-color: #f0f7ff;
+        }
+
+        .clickable-row td:first-child::after {
+            content: " 📊";
+            font-size: 0.8em;
+            opacity: 0.5;
+        }
+
+        /* Heatmap Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #37003c;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        /* Heatmap Grid */
+        .heatmap-container {
+            overflow-x: auto;
+        }
+
+        .heatmap {
+            display: grid;
+            grid-template-columns: 40px repeat(6, 1fr);
+            gap: 2px;
+            font-size: 0.85rem;
+        }
+
+        .heatmap-cell {
+            padding: 8px 4px;
+            text-align: center;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .heatmap-header {
+            background: #37003c;
+            color: white;
+            font-weight: 600;
+        }
+
+        .heatmap-row-header {
+            background: #00ff85;
+            color: #37003c;
+            font-weight: 600;
+        }
+
+        .heatmap-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .heatmap-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
         }
 
         @media (max-width: 768px) {
@@ -127,6 +257,8 @@
             <!-- Right Column: Upcoming -->
             <div class="column">
                 <h2>Upcoming Predictions</h2>
+                <p style="font-size: 0.85rem; color: #888; margin-top: -0.5rem;">Click a row to see probability heatmap
+                </p>
                 <div class="prediction-box">
                     <table id="upcoming-table">
                         <thead>
@@ -173,7 +305,7 @@
             <p style="color: #666; line-height: 1.6; margin-bottom: 0;">
                 The xG column shows the model's expected goals for each team. For example, "1.5 - 0.8" means
                 the home team is expected to score 1.5 goals on average, while the away team is expected to score 0.8.
-                The predicted score rounds these values to the nearest whole number.
+                Click on any prediction to see the full probability heatmap for all scorelines!
             </p>
 
             <p style="color: #999; font-size: 0.85rem; margin-top: 1.5rem; font-style: italic;">
@@ -183,14 +315,42 @@
         </div>
     </div>
 
+    <!-- Heatmap Modal -->
+    <div class="modal-overlay" id="heatmap-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Probability Heatmap</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="heatmap-container">
+                <div class="heatmap-label" style="margin-bottom: 0.3rem;"><strong>Away Goals →</strong></div>
+                <div class="heatmap" id="heatmap-grid"></div>
+                <div class="heatmap-label"><strong>↑ Home Goals</strong></div>
+            </div>
+            <div class="heatmap-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fee;"></div> Low
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ffa;"></div> Medium
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #8f8;"></div> High
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let predictionsData = [];
+
         async function loadData() {
             try {
                 // Load Upcoming
                 const predResponse = await fetch('predictions.json');
                 if (predResponse.ok) {
-                    const predictions = await predResponse.json();
-                    populateTable('#upcoming-table tbody', predictions, false);
+                    predictionsData = await predResponse.json();
+                    populateTable('#upcoming-table tbody', predictionsData, false);
                 }
 
                 // Load Past Results
@@ -222,7 +382,7 @@
             const tableBody = document.querySelector(selector);
             tableBody.innerHTML = '';
 
-            data.forEach(item => {
+            data.forEach((item, index) => {
                 const row = document.createElement('tr');
 
                 const matchCell = document.createElement('td');
@@ -246,11 +406,73 @@
                     xgCell.style.fontSize = '0.9em';
                     xgCell.textContent = `${Number(item.HomeGoals_Exp).toFixed(1)} - ${Number(item.AwayGoals_Exp).toFixed(1)}`;
                     row.appendChild(xgCell);
+
+                    // Make row clickable for heatmap
+                    row.className = 'clickable-row';
+                    row.onclick = () => showHeatmap(index);
                 }
 
                 tableBody.appendChild(row);
             });
         }
+
+        function showHeatmap(index) {
+            const match = predictionsData[index];
+            if (!match || !match.ProbMatrix) {
+                alert('Probability data not available for this match.');
+                return;
+            }
+
+            document.getElementById('modal-title').textContent =
+                `${match.HomeTeam} vs ${match.AwayTeam}`;
+
+            const grid = document.getElementById('heatmap-grid');
+            grid.innerHTML = '';
+
+            // Header row (Away goals 0-5)
+            grid.innerHTML += '<div class="heatmap-cell"></div>'; // Empty corner
+            for (let a = 0; a <= 5; a++) {
+                grid.innerHTML += `<div class="heatmap-cell heatmap-header">${a}</div>`;
+            }
+
+            // Data rows
+            for (let h = 0; h <= 5; h++) {
+                // Row header (Home goals)
+                grid.innerHTML += `<div class="heatmap-cell heatmap-row-header">${h}</div>`;
+
+                for (let a = 0; a <= 5; a++) {
+                    const key = `${h}-${a}`;
+                    const prob = match.ProbMatrix[key] || 0;
+                    const color = getHeatmapColor(prob);
+                    grid.innerHTML += `<div class="heatmap-cell" style="background: ${color};" title="${h}-${a}: ${prob}%">${prob}%</div>`;
+                }
+            }
+
+            document.getElementById('heatmap-modal').classList.add('active');
+        }
+
+        function getHeatmapColor(prob) {
+            // Color scale: low (red-ish) -> medium (yellow) -> high (green)
+            if (prob < 3) return '#fee0e0';
+            if (prob < 6) return '#fff3cd';
+            if (prob < 10) return '#d4edda';
+            if (prob < 15) return '#a8e6a8';
+            return '#6fdc6f';
+        }
+
+        function closeModal() {
+            document.getElementById('heatmap-modal').classList.remove('active');
+        }
+
+        // Close modal on outside click
+        document.getElementById('heatmap-modal').addEventListener('click', function (e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeModal();
+        });
 
         loadData();
     </script>

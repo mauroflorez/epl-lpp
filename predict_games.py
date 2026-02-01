@@ -13,6 +13,7 @@ import argparse
 import json
 from datetime import datetime
 from tabulate import tabulate
+from scipy.stats import poisson
 
 # Configuration
 DATA_FILE = "data/matches.csv"
@@ -20,6 +21,18 @@ FEATURES_FILE = "data/features.csv"
 MODEL_FILE = "models/models.pkl"
 ROLLING_WINDOW = 5
 CURRENT_SEASON = 2526
+
+def calculate_poisson_probs(home_exp, away_exp, max_goals=5):
+    """
+    Calculate probability matrix for all scorelines from 0-0 to max_goals-max_goals.
+    Returns a dict with probabilities for display in heatmap.
+    """
+    probs = {}
+    for h in range(max_goals + 1):
+        for a in range(max_goals + 1):
+            prob = poisson.pmf(h, home_exp) * poisson.pmf(a, away_exp)
+            probs[f"{h}-{a}"] = round(prob * 100, 1)  # Store as percentage
+    return probs
 
 def load_models():
     if not os.path.exists(MODEL_FILE):
@@ -201,12 +214,17 @@ def predict_match(home_team, away_team, models, df):
         home_goals_exp = home_stats['AvgGoalsScored']
         away_goals_exp = away_stats['AvgGoalsScored']
     
+    
+    # Calculate probability matrix for heatmap
+    prob_matrix = calculate_poisson_probs(home_goals_exp, away_goals_exp)
+    
     return {
         'HomeTeam': home_team,
         'AwayTeam': away_team,
         'HomeGoals_Exp': round(home_goals_exp, 2),
         'AwayGoals_Exp': round(away_goals_exp, 2),
-        'PredictedScore': f"{int(round(home_goals_exp))} - {int(round(away_goals_exp))}"
+        'PredictedScore': f"{int(round(home_goals_exp))} - {int(round(away_goals_exp))}",
+        'ProbMatrix': prob_matrix
     }
 
 def get_next_fixtures():

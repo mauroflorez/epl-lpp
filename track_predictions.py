@@ -22,8 +22,9 @@ def load_history():
     """Load prediction history or create empty DataFrame."""
     if os.path.exists(HISTORY_FILE):
         df = pd.read_csv(HISTORY_FILE)
-        df['Date'] = pd.to_datetime(df['Date'])
-        df['PredictionDate'] = pd.to_datetime(df['PredictionDate'])
+        # Use format='mixed' to handle various date formats
+        df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
+        df['PredictionDate'] = pd.to_datetime(df['PredictionDate'], format='mixed', errors='coerce')
         return df
     else:
         return pd.DataFrame(columns=[
@@ -59,13 +60,15 @@ def log_new_predictions(history_df, predictions_file=PREDICTIONS_FILE):
         home = pred['HomeTeam']
         away = pred['AwayTeam']
         
-        # Check if already logged (handle empty DataFrame)
+        # Check if this exact match (home/away combo) already exists in history
+        # regardless of prediction date - prevents duplicates across runs
         exists = False
         if len(history_df) > 0:
+            # Check if this match already exists and hasn't been evaluated yet
             exists = (
                 (history_df['HomeTeam'] == home) & 
                 (history_df['AwayTeam'] == away) &
-                (history_df['PredictionDate'].dt.date == today)
+                (history_df['ActualResult'].isna() | (history_df['ActualResult'] == ''))
             ).any()
         
         if not exists:
@@ -83,6 +86,8 @@ def log_new_predictions(history_df, predictions_file=PREDICTIONS_FILE):
     if new_rows:
         history_df = pd.concat([history_df, pd.DataFrame(new_rows)], ignore_index=True)
         print(f"Added {len(new_rows)} new predictions to history")
+    else:
+        print("No new predictions to add (all already in history)")
     
     return history_df
 
