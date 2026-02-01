@@ -222,9 +222,86 @@
             margin: 0;
         }
 
+        /* Tablet: Stack columns vertically */
         @media (max-width: 900px) {
             .grid {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        /* Mobile: Smaller fonts and horizontal scroll for tables */
+        @media (max-width: 600px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .container {
+                padding: 0.8rem;
+                border-radius: 8px;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            h2 {
+                font-size: 0.95rem;
+            }
+
+            .accuracy-box {
+                padding: 0.6rem;
+                font-size: 0.85rem;
+            }
+
+            .accuracy-box span:nth-child(2) {
+                font-size: 1.1rem !important;
+            }
+
+            .column {
+                padding: 0.6rem;
+                overflow-x: auto;
+            }
+
+            table {
+                font-size: 0.72rem;
+                min-width: 320px;
+            }
+
+            th,
+            td {
+                padding: 0.35rem 0.25rem;
+                white-space: nowrap;
+            }
+
+            .matchday-badge {
+                font-size: 0.7rem;
+                padding: 0.15rem 0.4rem;
+            }
+
+            .info-section {
+                padding: 0.8rem;
+                font-size: 0.78rem;
+            }
+
+            .info-section h3 {
+                font-size: 0.9rem;
+            }
+
+            .info-section ul {
+                font-size: 0.75rem;
+            }
+
+            .modal-content {
+                padding: 1rem;
+                max-width: 95%;
+            }
+
+            .heatmap {
+                font-size: 0.65rem;
+            }
+
+            .heatmap-cell {
+                padding: 4px 1px;
             }
         }
     </style>

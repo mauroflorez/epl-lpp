@@ -16,6 +16,61 @@ API_KEY = os.environ.get("FOOTBALL_DATA_API_KEY", "")
 # Timezone offset for PT (Pacific Time is UTC-8, or UTC-7 during DST)
 PT_OFFSET = timedelta(hours=-8)
 
+# Team name mapping: API name -> Local name
+TEAM_NAME_MAP = {
+    "Arsenal FC": "Arsenal",
+    "Aston Villa FC": "Aston Villa",
+    "AFC Bournemouth": "Bournemouth",
+    "Brentford FC": "Brentford",
+    "Brighton & Hove Albion FC": "Brighton",
+    "Chelsea FC": "Chelsea",
+    "Crystal Palace FC": "Crystal Palace",
+    "Everton FC": "Everton",
+    "Fulham FC": "Fulham",
+    "Ipswich Town FC": "Ipswich",
+    "Leeds United FC": "Leeds",
+    "Leicester City FC": "Leicester",
+    "Liverpool FC": "Liverpool",
+    "Manchester City FC": "Man City",
+    "Manchester United FC": "Man United",
+    "Newcastle United FC": "Newcastle",
+    "Nottingham Forest FC": "Nott'm Forest",
+    "Southampton FC": "Southampton",
+    "Sunderland AFC": "Sunderland",
+    "Tottenham Hotspur FC": "Tottenham",
+    "West Ham United FC": "West Ham",
+    "Wolverhampton Wanderers FC": "Wolves",
+    "Burnley FC": "Burnley",
+    # Short names from API
+    "Arsenal": "Arsenal",
+    "Aston Villa": "Aston Villa",
+    "Bournemouth": "Bournemouth",
+    "Brentford": "Brentford",
+    "Brighton Hove": "Brighton",
+    "Chelsea": "Chelsea",
+    "Crystal Palace": "Crystal Palace",
+    "Everton": "Everton",
+    "Fulham": "Fulham",
+    "Ipswich": "Ipswich",
+    "Leeds": "Leeds",
+    "Leicester": "Leicester",
+    "Liverpool": "Liverpool",
+    "Man City": "Man City",
+    "Man United": "Man United",
+    "Newcastle": "Newcastle",
+    "Nott'm Forest": "Nott'm Forest",
+    "Southampton": "Southampton",
+    "Sunderland": "Sunderland",
+    "Spurs": "Tottenham",
+    "West Ham": "West Ham",
+    "Wolves": "Wolves",
+    "Burnley": "Burnley",
+}
+
+def normalize_team_name(name):
+    """Normalize team name to match our local data."""
+    return TEAM_NAME_MAP.get(name, name)
+
 def get_headers():
     """Get API headers."""
     headers = {"Content-Type": "application/json"}
@@ -64,6 +119,10 @@ def format_match_data(match):
     """Format match data for our application."""
     home_team = match.get("homeTeam", {}).get("shortName", match.get("homeTeam", {}).get("name", "Unknown"))
     away_team = match.get("awayTeam", {}).get("shortName", match.get("awayTeam", {}).get("name", "Unknown"))
+    
+    # Normalize team names to match our local data
+    home_team = normalize_team_name(home_team)
+    away_team = normalize_team_name(away_team)
     
     # Get match time
     utc_date = match.get("utcDate", "")
@@ -132,11 +191,15 @@ def update_predictions_with_actual(predictions_file, matchday):
         print("No matches to update")
         return
     
-    # Create lookup by team names
+    # Create lookup by team names (normalized)
     results = {}
     for m in matches:
-        home = m.get("homeTeam", {}).get("shortName", "")
-        away = m.get("awayTeam", {}).get("shortName", "")
+        home = m.get("homeTeam", {}).get("shortName", m.get("homeTeam", {}).get("name", ""))
+        away = m.get("awayTeam", {}).get("shortName", m.get("awayTeam", {}).get("name", ""))
+        
+        # Normalize names to match our local data
+        home = normalize_team_name(home)
+        away = normalize_team_name(away)
         
         if m.get("status") == "FINISHED":
             ft = m.get("score", {}).get("fullTime", {})

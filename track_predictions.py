@@ -51,7 +51,13 @@ def log_new_predictions(history_df, predictions_file=PREDICTIONS_FILE):
         return history_df
     
     with open(predictions_file, 'r') as f:
-        predictions = json.load(f)
+        data = json.load(f)
+    
+    # Handle both old (list) and new (dict with predictions key) formats
+    if isinstance(data, dict) and 'predictions' in data:
+        predictions = data['predictions']
+    else:
+        predictions = data
     
     today = datetime.now().date()
     new_rows = []
