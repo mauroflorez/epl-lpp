@@ -27,33 +27,39 @@
         h1 {
             color: #37003c;
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 0.5rem;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        .column h2 {
-            color: #555;
+        h2 {
+            color: #37003c;
             border-bottom: 2px solid #37003c;
             padding-bottom: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .matchday-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #37003c 0%, #00ff85 100%);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
         }
 
         th,
         td {
-            padding: 0.8rem;
+            padding: 0.7rem;
             text-align: left;
             border-bottom: 1px solid #ddd;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         th {
@@ -71,13 +77,26 @@
             color: #007bff;
         }
 
+        .pending {
+            color: #999;
+            font-style: italic;
+        }
+
+        .correct {
+            color: #28a745;
+        }
+
+        .incorrect {
+            color: #dc3545;
+        }
+
         .prediction-box {
             background: #fff;
             border: 1px solid #eee;
             border-radius: 8px;
+            margin-bottom: 1rem;
         }
 
-        /* Clickable prediction rows */
         .clickable-row {
             cursor: pointer;
             transition: background-color 0.2s;
@@ -87,10 +106,14 @@
             background-color: #f0f7ff;
         }
 
-        .clickable-row td:first-child::after {
-            content: " 📊";
-            font-size: 0.8em;
-            opacity: 0.5;
+        /* Accuracy Banner */
+        .accuracy-box {
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #37003c 0%, #00ff85 100%);
+            border-radius: 8px;
+            color: white;
         }
 
         /* Heatmap Modal */
@@ -118,19 +141,6 @@
             max-width: 450px;
             width: 90%;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            animation: modalSlide 0.3s ease;
-        }
-
-        @keyframes modalSlide {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
         }
 
         .modal-header {
@@ -151,15 +161,6 @@
             font-size: 1.5rem;
             cursor: pointer;
             color: #999;
-        }
-
-        .modal-close:hover {
-            color: #333;
-        }
-
-        /* Heatmap Grid */
-        .heatmap-container {
-            overflow-x: auto;
         }
 
         .heatmap {
@@ -195,30 +196,12 @@
             margin-top: 0.5rem;
         }
 
-        .heatmap-legend {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 3px;
-        }
-
         @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
+
+            th,
+            td {
+                padding: 0.5rem;
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -228,90 +211,62 @@
     <div class="container">
         <h1>Premier League Predictions</h1>
 
-        <div id="accuracy-box"
-            style="text-align: center; padding: 1rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, #37003c 0%, #00ff85 100%); border-radius: 8px; color: white;">
+        <div class="accuracy-box">
             <span style="font-size: 1.1rem;">Winner Prediction Accuracy:</span>
             <span id="accuracy-value"
                 style="font-size: 1.5rem; font-weight: bold; margin-left: 0.5rem;">Loading...</span>
             <span id="accuracy-detail" style="font-size: 0.9rem; margin-left: 0.5rem; opacity: 0.9;"></span>
         </div>
 
-        <div class="grid">
-            <!-- Left Column: Past Results -->
-            <div class="column">
-                <h2>Last Round Results</h2>
-                <div class="prediction-box">
-                    <table id="past-table">
-                        <thead>
-                            <tr>
-                                <th>Match</th>
-                                <th>Predicted</th>
-                                <th>Actual</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Right Column: Upcoming -->
-            <div class="column">
-                <h2>Upcoming Predictions</h2>
-                <p style="font-size: 0.85rem; color: #888; margin-top: -0.5rem;">Click a row to see probability heatmap
-                </p>
-                <div class="prediction-box">
-                    <table id="upcoming-table">
-                        <thead>
-                            <tr>
-                                <th>Match</th>
-                                <th>Pred</th>
-                                <th>H/D/A %</th>
-                                <th>xG</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
+        <!-- Last Matchday Results -->
+        <h2>Last Matchday <span class="matchday-badge" id="past-matchday-badge">#23</span></h2>
+        <div class="prediction-box">
+            <table id="past-table">
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Pred</th>
+                        <th>H/D/A %</th>
+                        <th>Actual</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
 
-        <div class="last-updated" id="last-updated"></div>
+        <!-- Current Matchday -->
+        <h2>Current Matchday <span class="matchday-badge" id="current-matchday-badge">#24</span></h2>
+        <p style="font-size: 0.85rem; color: #888; margin-top: -0.5rem;">Click a row to see probability heatmap</p>
+        <div class="prediction-box">
+            <table id="current-table">
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Date</th>
+                        <th>Pred</th>
+                        <th>H/D/A %</th>
+                        <th>Actual</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
 
-        <!-- Modeling Details Section -->
+        <div id="last-updated" style="color: #999; font-size: 0.85rem; margin-top: 1rem;"></div>
+
+        <!-- How It Works -->
         <div
             style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #37003c;">
             <h2 style="color: #37003c; margin-top: 0;">How It Works</h2>
-
-            <h3 style="font-size: 1rem; color: #555; margin-bottom: 0.5rem;">📊 The Model</h3>
-            <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
-                We use a <strong>Poisson regression model</strong> to predict expected goals for each team.
-                The model learns <em>team attack strength</em> and <em>defensive weakness</em> by analyzing
-                how each team performs across all matches in the current season.
+            <p style="color: #666; line-height: 1.6;">
+                We use a <strong>Poisson regression model</strong> trained on the current season to predict expected
+                goals.
+                The H/D/A % column shows the probability of Home Win / Draw / Away Win based on the Poisson
+                distribution.
+                Click any row to see the full probability heatmap for all scorelines.
             </p>
-
-            <h3 style="font-size: 1rem; color: #555; margin-bottom: 0.5rem;">⚽ Features Used</h3>
-            <ul style="color: #666; line-height: 1.8; margin-bottom: 1rem; padding-left: 1.5rem;">
-                <li><strong>Team Effects:</strong> Attack strength for home team, defensive weakness for opponent</li>
-                <li><strong>League Position:</strong> Current standings in the table</li>
-                <li><strong>Rolling Stats:</strong> Goals, shots, and shots on target (last 5 games)</li>
-            </ul>
-
-            <h3 style="font-size: 1rem; color: #555; margin-bottom: 0.5rem;">🔄 Daily Updates</h3>
-            <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
-                The model is <strong>retrained daily</strong> using all matches played so far this season.
-                As more games are played, the model learns better estimates of each team's true strength.
-            </p>
-
-            <h3 style="font-size: 1rem; color: #555; margin-bottom: 0.5rem;">📈 Expected Goals (xG)</h3>
-            <p style="color: #666; line-height: 1.6; margin-bottom: 0;">
-                The xG column shows the model's expected goals for each team. For example, "1.5 - 0.8" means
-                the home team is expected to score 1.5 goals on average, while the away team is expected to score 0.8.
-                Click on any prediction to see the full probability heatmap for all scorelines!
-            </p>
-
-            <p style="color: #999; font-size: 0.85rem; margin-top: 1.5rem; font-style: italic;">
-                ⚠️ This is an experimental project for learning purposes. Predictions should not be used for any real
-                decisions.
+            <p style="color: #999; font-size: 0.85rem; margin-top: 1rem; font-style: italic;">
+                ⚠️ This is an experimental project for learning purposes.
             </p>
         </div>
     </div>
@@ -323,42 +278,35 @@
                 <h3 id="modal-title">Probability Heatmap</h3>
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
-            <div class="heatmap-container">
-                <div class="heatmap-label" style="margin-bottom: 0.3rem;"><strong>Away Goals →</strong></div>
-                <div class="heatmap" id="heatmap-grid"></div>
-                <div class="heatmap-label"><strong>↑ Home Goals</strong></div>
-            </div>
-            <div class="heatmap-legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #fee;"></div> Low
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #ffa;"></div> Medium
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #8f8;"></div> High
-                </div>
-            </div>
+            <div class="heatmap-label" style="margin-bottom: 0.3rem;"><strong>Away Goals →</strong></div>
+            <div class="heatmap" id="heatmap-grid"></div>
+            <div class="heatmap-label"><strong>↑ Home Goals</strong></div>
         </div>
     </div>
 
     <script>
-        let predictionsData = [];
+        let currentMatchdayData = [];
 
         async function loadData() {
             try {
-                // Load Upcoming
+                // Load Current Matchday Predictions
                 const predResponse = await fetch('predictions.json');
                 if (predResponse.ok) {
-                    predictionsData = await predResponse.json();
-                    populateTable('#upcoming-table tbody', predictionsData, false);
+                    const data = await predResponse.json();
+                    currentMatchdayData = data.predictions || data;
+                    const matchday = data.matchday || '24';
+                    document.getElementById('current-matchday-badge').textContent = `#${matchday}`;
+                    populateCurrentTable(currentMatchdayData);
                 }
 
                 // Load Past Results
                 const resultResponse = await fetch('past_results.json');
                 if (resultResponse.ok) {
-                    const results = await resultResponse.json();
-                    populateTable('#past-table tbody', results, true);
+                    const data = await resultResponse.json();
+                    const results = data.results || data;
+                    const matchday = data.matchday || '23';
+                    document.getElementById('past-matchday-badge').textContent = `#${matchday}`;
+                    populatePastTable(results);
                 }
 
                 // Load Accuracy
@@ -373,98 +321,98 @@
                 }
 
                 document.getElementById('last-updated').textContent = `Last updated: ${new Date().toLocaleDateString()}`;
-
             } catch (error) {
                 console.error("Error loading data:", error);
             }
         }
 
-        function populateTable(selector, data, isPast) {
-            const tableBody = document.querySelector(selector);
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr + 'T12:00:00');
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            return `${day}/${month}`;
+        }
+
+        function formatWinProbs(winProbs) {
+            if (!winProbs) return '-';
+            const h = winProbs.H;
+            const d = winProbs.D;
+            const a = winProbs.A;
+            const maxProb = Math.max(h, d, a);
+            const hStyle = h === maxProb ? 'font-weight:bold;color:#28a745;' : 'color:#666;';
+            const dStyle = d === maxProb ? 'font-weight:bold;color:#ffc107;' : 'color:#666;';
+            const aStyle = a === maxProb ? 'font-weight:bold;color:#dc3545;' : 'color:#666;';
+            return `<span style="${hStyle}">${h}</span> / <span style="${dStyle}">${d}</span> / <span style="${aStyle}">${a}</span>`;
+        }
+
+        function populatePastTable(data) {
+            const tableBody = document.querySelector('#past-table tbody');
+            tableBody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                const home = item.Home || item.HomeTeam;
+                const away = item.Away || item.AwayTeam;
+
+                row.innerHTML = `
+                    <td>${home} vs ${away}</td>
+                    <td class="score">${item.PredictedScore}</td>
+                    <td style="font-size:0.85em;">${formatWinProbs(item.WinProbs)}</td>
+                    <td class="actual-score">${item.Actual || item.ActualScore}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function populateCurrentTable(data) {
+            const tableBody = document.querySelector('#current-table tbody');
             tableBody.innerHTML = '';
 
             data.forEach((item, index) => {
                 const row = document.createElement('tr');
+                row.className = 'clickable-row';
+                row.onclick = () => showHeatmap(index);
 
-                const matchCell = document.createElement('td');
-                matchCell.textContent = `${item.HomeTeam} vs ${item.AwayTeam}`;
+                const actual = item.Actual || '-';
+                const actualClass = actual === '-' ? 'pending' : 'actual-score';
 
-                const predCell = document.createElement('td');
-                predCell.className = 'score';
-                predCell.textContent = item.PredictedScore;
-
-                row.appendChild(matchCell);
-                row.appendChild(predCell);
-
-                if (isPast) {
-                    const actualCell = document.createElement('td');
-                    actualCell.className = 'actual-score';
-                    actualCell.textContent = item.ActualScore;
-                    row.appendChild(actualCell);
-                } else {
-                    // H/D/A probability column
-                    const probCell = document.createElement('td');
-                    probCell.style.fontSize = '0.85em';
-                    if (item.WinProbs) {
-                        const h = item.WinProbs.H;
-                        const d = item.WinProbs.D;
-                        const a = item.WinProbs.A;
-                        // Highlight the most likely outcome
-                        const maxProb = Math.max(h, d, a);
-                        const hStyle = h === maxProb ? 'font-weight:bold;color:#28a745;' : 'color:#666;';
-                        const dStyle = d === maxProb ? 'font-weight:bold;color:#ffc107;' : 'color:#666;';
-                        const aStyle = a === maxProb ? 'font-weight:bold;color:#dc3545;' : 'color:#666;';
-                        probCell.innerHTML = `<span style="${hStyle}">${h}</span> / <span style="${dStyle}">${d}</span> / <span style="${aStyle}">${a}</span>`;
-                    } else {
-                        probCell.textContent = '-';
-                    }
-                    row.appendChild(probCell);
-
-                    // xG column
-                    const xgCell = document.createElement('td');
-                    xgCell.style.color = '#777';
-                    xgCell.style.fontSize = '0.9em';
-                    xgCell.textContent = `${Number(item.HomeGoals_Exp).toFixed(1)} - ${Number(item.AwayGoals_Exp).toFixed(1)}`;
-                    row.appendChild(xgCell);
-
-                    // Make row clickable for heatmap
-                    row.className = 'clickable-row';
-                    row.onclick = () => showHeatmap(index);
-                }
-
+                row.innerHTML = `
+                    <td>${item.HomeTeam} vs ${item.AwayTeam}</td>
+                    <td>${formatDate(item.MatchDate)}</td>
+                    <td class="score">${item.PredictedScore}</td>
+                    <td style="font-size:0.85em;">${formatWinProbs(item.WinProbs)}</td>
+                    <td class="${actualClass}">${actual}</td>
+                `;
                 tableBody.appendChild(row);
             });
         }
 
         function showHeatmap(index) {
-            const match = predictionsData[index];
+            const match = currentMatchdayData[index];
             if (!match || !match.ProbMatrix) {
                 alert('Probability data not available for this match.');
                 return;
             }
 
-            document.getElementById('modal-title').textContent =
-                `${match.HomeTeam} vs ${match.AwayTeam}`;
-
+            document.getElementById('modal-title').textContent = `${match.HomeTeam} vs ${match.AwayTeam}`;
             const grid = document.getElementById('heatmap-grid');
             grid.innerHTML = '';
 
-            // Header row (Away goals 0-5)
-            grid.innerHTML += '<div class="heatmap-cell"></div>'; // Empty corner
+            // Header row
+            grid.innerHTML += '<div class="heatmap-cell"></div>';
             for (let a = 0; a <= 5; a++) {
                 grid.innerHTML += `<div class="heatmap-cell heatmap-header">${a}</div>`;
             }
 
             // Data rows
             for (let h = 0; h <= 5; h++) {
-                // Row header (Home goals)
                 grid.innerHTML += `<div class="heatmap-cell heatmap-row-header">${h}</div>`;
-
                 for (let a = 0; a <= 5; a++) {
                     const key = `${h}-${a}`;
                     const prob = match.ProbMatrix[key] || 0;
                     const color = getHeatmapColor(prob);
-                    grid.innerHTML += `<div class="heatmap-cell" style="background: ${color};" title="${h}-${a}: ${prob}%">${prob}%</div>`;
+                    grid.innerHTML += `<div class="heatmap-cell" style="background:${color};" title="${key}: ${prob}%">${prob}%</div>`;
                 }
             }
 
@@ -472,7 +420,6 @@
         }
 
         function getHeatmapColor(prob) {
-            // Color scale: low (red-ish) -> medium (yellow) -> high (green)
             if (prob < 3) return '#fee0e0';
             if (prob < 6) return '#fff3cd';
             if (prob < 10) return '#d4edda';
@@ -484,12 +431,9 @@
             document.getElementById('heatmap-modal').classList.remove('active');
         }
 
-        // Close modal on outside click
         document.getElementById('heatmap-modal').addEventListener('click', function (e) {
             if (e.target === this) closeModal();
         });
-
-        // Close modal on Escape key
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') closeModal();
         });

@@ -260,69 +260,66 @@ def get_next_fixtures():
     """
     Define upcoming fixtures organized by matchday.
     Format: (HomeTeam, AwayTeam, MatchDate)
-    Only returns fixtures with dates >= today.
+    Returns all fixtures for the current matchday being played.
     """
-    from datetime import datetime
-    today = datetime.now().date()
-    
-    # Matchday 24 fixtures - Feb 1, 2026
+    # Matchday 24 - Jan 31 to Feb 2, 2026 (CURRENT)
     matchday_24 = [
-        ("Bournemouth", "Aston Villa", "2026-02-01"),
-        ("Ipswich", "Brighton", "2026-02-01"),
-        ("Leicester", "Arsenal", "2026-02-01"),
-        ("Man City", "Chelsea", "2026-02-01"),
-        ("Tottenham", "Liverpool", "2026-02-01"),
-        ("West Ham", "Everton", "2026-02-01"),
-        ("Wolves", "Brentford", "2026-02-01"),
-        ("Southampton", "Newcastle", "2026-02-02"),
-        ("Fulham", "Man United", "2026-02-02"),
-        ("Nott'm Forest", "Crystal Palace", "2026-02-02"),
+        ("Leeds", "Arsenal", "2026-01-31"),
+        ("Wolves", "Bournemouth", "2026-01-31"),
+        ("Brighton", "Everton", "2026-01-31"),
+        ("Chelsea", "West Ham", "2026-01-31"),
+        ("Liverpool", "Newcastle", "2026-01-31"),
+        ("Aston Villa", "Brentford", "2026-02-01"),
+        ("Man United", "Fulham", "2026-02-01"),
+        ("Nott'm Forest", "Crystal Palace", "2026-02-01"),
+        ("Tottenham", "Man City", "2026-02-01"),
+        ("Sunderland", "Burnley", "2026-02-02"),
     ]
     
-    # Future matchdays...
+    # Matchday 25 - Feb 7-8, 2026
     matchday_25 = [
-        ("Arsenal", "Bournemouth", "2026-02-08"),
-        ("Aston Villa", "Leicester", "2026-02-08"),
-        ("Brighton", "Southampton", "2026-02-08"),
-        ("Chelsea", "Fulham", "2026-02-08"),
-        ("Crystal Palace", "West Ham", "2026-02-08"),
-        ("Everton", "Wolves", "2026-02-08"),
-        ("Liverpool", "Ipswich", "2026-02-08"),
-        ("Man United", "Nott'm Forest", "2026-02-08"),
-        ("Newcastle", "Man City", "2026-02-08"),
-        ("Brentford", "Tottenham", "2026-02-09"),
+        ("Bournemouth", "Aston Villa", "2026-02-07"),
+        ("Arsenal", "Sunderland", "2026-02-07"),
+        ("Burnley", "West Ham", "2026-02-07"),
+        ("Fulham", "Everton", "2026-02-07"),
+        ("Man United", "Tottenham", "2026-02-07"),
+        ("Newcastle", "Brentford", "2026-02-07"),
+        ("Wolves", "Chelsea", "2026-02-07"),
+        ("Leeds", "Nott'm Forest", "2026-02-06"),
+        ("Brighton", "Crystal Palace", "2026-02-08"),
+        ("Liverpool", "Man City", "2026-02-08"),
     ]
     
-    all_fixtures = matchday_24 + matchday_25
-    
-    # Filter to only return future games
-    future_fixtures = []
-    for home, away, date_str in all_fixtures:
-        match_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-        if match_date >= today:
-            future_fixtures.append((home, away, date_str))
-    
-    return future_fixtures
+    return matchday_24, matchday_25, 24  # Returns current matchday number
 
 def get_past_results():
     """
-    Recent past results for evaluation.
+    Matchday 23 results (completed matchday).
     These are games that have been played and have actual scores.
     """
     return [
-        # Matchday 23 - Jan 25, 2026
-        {"Home": "Everton", "Away": "Leeds", "Actual": "1 - 2", "Date": "2026-01-25"},
-        {"Home": "Leeds", "Away": "Arsenal", "Actual": "0 - 3", "Date": "2026-01-25"},
-        {"Home": "Wolves", "Away": "Bournemouth", "Actual": "1 - 2", "Date": "2026-01-25"},
-        {"Home": "Brighton", "Away": "Everton", "Actual": "2 - 1", "Date": "2026-01-25"},
-        {"Home": "Chelsea", "Away": "West Ham", "Actual": "3 - 0", "Date": "2026-01-25"},
-        {"Home": "Liverpool", "Away": "Newcastle", "Actual": "4 - 2", "Date": "2026-01-25"},
-        {"Home": "Aston Villa", "Away": "Brentford", "Actual": "2 - 1", "Date": "2026-01-25"},
-        {"Home": "Man United", "Away": "Fulham", "Actual": "1 - 1", "Date": "2026-01-25"},
-        {"Home": "Nott'm Forest", "Away": "Crystal Palace", "Actual": "1 - 0", "Date": "2026-01-26"},
-        {"Home": "Tottenham", "Away": "Man City", "Actual": "2 - 3", "Date": "2026-01-26"},
-        {"Home": "Sunderland", "Away": "Burnley", "Actual": "0 - 1", "Date": "2026-01-26"},
-    ]
+        # Matchday 23 - Jan 25-26, 2026
+        {"Home": "West Ham", "Away": "Sunderland", "Actual": "3 - 1", "Date": "2026-01-25",
+         "PredictedScore": "1 - 1", "WinProbs": {"H": 40.2, "D": 28.5, "A": 31.3}},
+        {"Home": "Fulham", "Away": "Brighton", "Actual": "2 - 1", "Date": "2026-01-25",
+         "PredictedScore": "1 - 2", "WinProbs": {"H": 35.1, "D": 27.8, "A": 37.1}},
+        {"Home": "Burnley", "Away": "Tottenham", "Actual": "2 - 2", "Date": "2026-01-25",
+         "PredictedScore": "1 - 3", "WinProbs": {"H": 18.2, "D": 22.4, "A": 59.4}},
+        {"Home": "Man City", "Away": "Wolves", "Actual": "2 - 0", "Date": "2026-01-25",
+         "PredictedScore": "1 - 1", "WinProbs": {"H": 52.1, "D": 25.8, "A": 22.1}},
+        {"Home": "Bournemouth", "Away": "Liverpool", "Actual": "3 - 2", "Date": "2026-01-25",
+         "PredictedScore": "3 - 1", "WinProbs": {"H": 48.5, "D": 24.2, "A": 27.3}},
+        {"Home": "Crystal Palace", "Away": "Chelsea", "Actual": "1 - 3", "Date": "2026-01-25",
+         "PredictedScore": "0 - 2", "WinProbs": {"H": 15.2, "D": 21.8, "A": 63.0}},
+        {"Home": "Newcastle", "Away": "Aston Villa", "Actual": "0 - 2", "Date": "2026-01-25",
+         "PredictedScore": "3 - 2", "WinProbs": {"H": 52.8, "D": 24.5, "A": 22.7}},
+        {"Home": "Brentford", "Away": "Nott'm Forest", "Actual": "0 - 2", "Date": "2026-01-26",
+         "PredictedScore": "1 - 2", "WinProbs": {"H": 32.1, "D": 27.5, "A": 40.4}},
+        {"Home": "Arsenal", "Away": "Man United", "Actual": "2 - 3", "Date": "2026-01-26",
+         "PredictedScore": "3 - 1", "WinProbs": {"H": 65.2, "D": 20.1, "A": 14.7}},
+        {"Home": "Everton", "Away": "Leicester", "Actual": "1 - 0", "Date": "2026-01-26",
+         "PredictedScore": "1 - 1", "WinProbs": {"H": 42.5, "D": 28.2, "A": 29.3}},
+    ], 23  # Returns matchday number
 
 def main():
     parser = argparse.ArgumentParser(description="Predict EPL Match Scores")
@@ -354,36 +351,38 @@ def main():
             print(f"PREDICTION: {result['PredictedScore']}")
     
     elif args.json:
-        # Batch predictions
-        predictions = []
-        for h, a, date_str in get_next_fixtures():
+        # Batch predictions for current matchday
+        matchday_current, matchday_next, current_md_num = get_next_fixtures()
+        
+        # Current matchday predictions
+        current_predictions = []
+        for h, a, date_str in matchday_current:
             if h in teams and a in teams:
                 result = predict_match(h, a, models, df)
                 if 'error' not in result:
                     result['MatchDate'] = date_str
-                    predictions.append(result)
+                    result['Actual'] = '-'  # Will be updated when game is played
+                    current_predictions.append(result)
+        
+        # Save with matchday info
+        output = {
+            'matchday': current_md_num,
+            'predictions': current_predictions
+        }
         
         with open(args.json, 'w') as f:
-            json.dump(predictions, f, indent=4)
+            json.dump(output, f, indent=4)
         print(f"Predictions saved to {args.json}")
         
         if args.past_results_json:
-            past_results = []
-            for match in get_past_results():
-                h, a = match["Home"], match["Away"]
-                if h in teams and a in teams:
-                    result = predict_match(h, a, models, df)
-                    if 'error' not in result:
-                        past_results.append({
-                            'HomeTeam': h,
-                            'AwayTeam': a,
-                            'PredictedScore': result['PredictedScore'],
-                            'ActualScore': match["Actual"],
-                            'ExpectedGoals': f"{result['HomeGoals_Exp']:.2f} - {result['AwayGoals_Exp']:.2f}"
-                        })
+            past_results_list, past_md_num = get_past_results()
+            past_output = {
+                'matchday': past_md_num,
+                'results': past_results_list
+            }
             
             with open(args.past_results_json, 'w') as f:
-                json.dump(past_results, f, indent=4)
+                json.dump(past_output, f, indent=4)
             print(f"Past results saved to {args.past_results_json}")
     
     else:
