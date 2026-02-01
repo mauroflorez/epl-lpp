@@ -264,7 +264,8 @@
                         <thead>
                             <tr>
                                 <th>Match</th>
-                                <th>Prediction</th>
+                                <th>Pred</th>
+                                <th>H/D/A %</th>
                                 <th>xG</th>
                             </tr>
                         </thead>
@@ -401,6 +402,25 @@
                     actualCell.textContent = item.ActualScore;
                     row.appendChild(actualCell);
                 } else {
+                    // H/D/A probability column
+                    const probCell = document.createElement('td');
+                    probCell.style.fontSize = '0.85em';
+                    if (item.WinProbs) {
+                        const h = item.WinProbs.H;
+                        const d = item.WinProbs.D;
+                        const a = item.WinProbs.A;
+                        // Highlight the most likely outcome
+                        const maxProb = Math.max(h, d, a);
+                        const hStyle = h === maxProb ? 'font-weight:bold;color:#28a745;' : 'color:#666;';
+                        const dStyle = d === maxProb ? 'font-weight:bold;color:#ffc107;' : 'color:#666;';
+                        const aStyle = a === maxProb ? 'font-weight:bold;color:#dc3545;' : 'color:#666;';
+                        probCell.innerHTML = `<span style="${hStyle}">${h}</span> / <span style="${dStyle}">${d}</span> / <span style="${aStyle}">${a}</span>`;
+                    } else {
+                        probCell.textContent = '-';
+                    }
+                    row.appendChild(probCell);
+
+                    // xG column
                     const xgCell = document.createElement('td');
                     xgCell.style.color = '#777';
                     xgCell.style.fontSize = '0.9em';

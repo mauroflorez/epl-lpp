@@ -34,6 +34,31 @@ def calculate_poisson_probs(home_exp, away_exp, max_goals=5):
             probs[f"{h}-{a}"] = round(prob * 100, 1)  # Store as percentage
     return probs
 
+def calculate_outcome_probs(home_exp, away_exp, max_goals=8):
+    """
+    Calculate probabilities of Home Win, Draw, Away Win from Poisson model.
+    Uses a higher max_goals for more accurate estimation.
+    """
+    home_win = 0.0
+    draw = 0.0
+    away_win = 0.0
+    
+    for h in range(max_goals + 1):
+        for a in range(max_goals + 1):
+            prob = poisson.pmf(h, home_exp) * poisson.pmf(a, away_exp)
+            if h > a:
+                home_win += prob
+            elif h == a:
+                draw += prob
+            else:
+                away_win += prob
+    
+    return {
+        'H': round(home_win * 100, 1),
+        'D': round(draw * 100, 1),
+        'A': round(away_win * 100, 1)
+    }
+
 def load_models():
     if not os.path.exists(MODEL_FILE):
         raise FileNotFoundError(f"Model file {MODEL_FILE} not found. Run train_model.py first.")
@@ -218,43 +243,85 @@ def predict_match(home_team, away_team, models, df):
     # Calculate probability matrix for heatmap
     prob_matrix = calculate_poisson_probs(home_goals_exp, away_goals_exp)
     
+    # Calculate H/D/A probabilities
+    outcome_probs = calculate_outcome_probs(home_goals_exp, away_goals_exp)
+    
     return {
         'HomeTeam': home_team,
         'AwayTeam': away_team,
         'HomeGoals_Exp': round(home_goals_exp, 2),
         'AwayGoals_Exp': round(away_goals_exp, 2),
         'PredictedScore': f"{int(round(home_goals_exp))} - {int(round(away_goals_exp))}",
+        'WinProbs': outcome_probs,
         'ProbMatrix': prob_matrix
     }
 
 def get_next_fixtures():
-    """Define upcoming fixtures."""
-    return [
-        ("Everton", "Leeds"),
-        ("Leeds", "Arsenal"),
-        ("Wolves", "Bournemouth"),
-        ("Brighton", "Everton"),
-        ("Chelsea", "West Ham"),
-        ("Liverpool", "Newcastle"),
-        ("Aston Villa", "Brentford"),
-        ("Man United", "Fulham"),
-        ("Nott'm Forest", "Crystal Palace"),
-        ("Tottenham", "Man City"),
-        ("Sunderland", "Burnley")
+    """
+    Define upcoming fixtures organized by matchday.
+    Format: (HomeTeam, AwayTeam, MatchDate)
+    Only returns fixtures with dates >= today.
+    """
+    from datetime import datetime
+    today = datetime.now().date()
+    
+    # Matchday 24 fixtures - Feb 1, 2026
+    matchday_24 = [
+        ("Bournemouth", "Aston Villa", "2026-02-01"),
+        ("Ipswich", "Brighton", "2026-02-01"),
+        ("Leicester", "Arsenal", "2026-02-01"),
+        ("Man City", "Chelsea", "2026-02-01"),
+        ("Tottenham", "Liverpool", "2026-02-01"),
+        ("West Ham", "Everton", "2026-02-01"),
+        ("Wolves", "Brentford", "2026-02-01"),
+        ("Southampton", "Newcastle", "2026-02-02"),
+        ("Fulham", "Man United", "2026-02-02"),
+        ("Nott'm Forest", "Crystal Palace", "2026-02-02"),
     ]
+    
+    # Future matchdays...
+    matchday_25 = [
+        ("Arsenal", "Bournemouth", "2026-02-08"),
+        ("Aston Villa", "Leicester", "2026-02-08"),
+        ("Brighton", "Southampton", "2026-02-08"),
+        ("Chelsea", "Fulham", "2026-02-08"),
+        ("Crystal Palace", "West Ham", "2026-02-08"),
+        ("Everton", "Wolves", "2026-02-08"),
+        ("Liverpool", "Ipswich", "2026-02-08"),
+        ("Man United", "Nott'm Forest", "2026-02-08"),
+        ("Newcastle", "Man City", "2026-02-08"),
+        ("Brentford", "Tottenham", "2026-02-09"),
+    ]
+    
+    all_fixtures = matchday_24 + matchday_25
+    
+    # Filter to only return future games
+    future_fixtures = []
+    for home, away, date_str in all_fixtures:
+        match_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        if match_date >= today:
+            future_fixtures.append((home, away, date_str))
+    
+    return future_fixtures
 
 def get_past_results():
-    """Recent past results for evaluation."""
+    """
+    Recent past results for evaluation.
+    These are games that have been played and have actual scores.
+    """
     return [
-        {"Home": "West Ham", "Away": "Sunderland", "Actual": "3 - 1"},
-        {"Home": "Fulham", "Away": "Brighton", "Actual": "2 - 1"},
-        {"Home": "Burnley", "Away": "Tottenham", "Actual": "2 - 2"},
-        {"Home": "Man City", "Away": "Wolves", "Actual": "2 - 0"},
-        {"Home": "Bournemouth", "Away": "Liverpool", "Actual": "3 - 2"},
-        {"Home": "Crystal Palace", "Away": "Chelsea", "Actual": "1 - 3"},
-        {"Home": "Newcastle", "Away": "Aston Villa", "Actual": "0 - 2"},
-        {"Home": "Brentford", "Away": "Nott'm Forest", "Actual": "0 - 2"},
-        {"Home": "Arsenal", "Away": "Man United", "Actual": "2 - 3"}
+        # Matchday 23 - Jan 25, 2026
+        {"Home": "Everton", "Away": "Leeds", "Actual": "1 - 2", "Date": "2026-01-25"},
+        {"Home": "Leeds", "Away": "Arsenal", "Actual": "0 - 3", "Date": "2026-01-25"},
+        {"Home": "Wolves", "Away": "Bournemouth", "Actual": "1 - 2", "Date": "2026-01-25"},
+        {"Home": "Brighton", "Away": "Everton", "Actual": "2 - 1", "Date": "2026-01-25"},
+        {"Home": "Chelsea", "Away": "West Ham", "Actual": "3 - 0", "Date": "2026-01-25"},
+        {"Home": "Liverpool", "Away": "Newcastle", "Actual": "4 - 2", "Date": "2026-01-25"},
+        {"Home": "Aston Villa", "Away": "Brentford", "Actual": "2 - 1", "Date": "2026-01-25"},
+        {"Home": "Man United", "Away": "Fulham", "Actual": "1 - 1", "Date": "2026-01-25"},
+        {"Home": "Nott'm Forest", "Away": "Crystal Palace", "Actual": "1 - 0", "Date": "2026-01-26"},
+        {"Home": "Tottenham", "Away": "Man City", "Actual": "2 - 3", "Date": "2026-01-26"},
+        {"Home": "Sunderland", "Away": "Burnley", "Actual": "0 - 1", "Date": "2026-01-26"},
     ]
 
 def main():
@@ -289,10 +356,11 @@ def main():
     elif args.json:
         # Batch predictions
         predictions = []
-        for h, a in get_next_fixtures():
+        for h, a, date_str in get_next_fixtures():
             if h in teams and a in teams:
                 result = predict_match(h, a, models, df)
                 if 'error' not in result:
+                    result['MatchDate'] = date_str
                     predictions.append(result)
         
         with open(args.json, 'w') as f:

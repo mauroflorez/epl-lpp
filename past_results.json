@@ -1,65 +1,90 @@
 [
     {
-        "HomeTeam": "West Ham",
-        "AwayTeam": "Sunderland",
-        "PredictedScore": "1 - 1",
-        "ActualScore": "3 - 1",
-        "ExpectedGoals": "1.32 - 1.01"
-    },
-    {
-        "HomeTeam": "Fulham",
-        "AwayTeam": "Brighton",
-        "PredictedScore": "1 - 2",
-        "ActualScore": "2 - 1",
-        "ExpectedGoals": "1.25 - 2.45"
-    },
-    {
-        "HomeTeam": "Burnley",
-        "AwayTeam": "Tottenham",
+        "HomeTeam": "Everton",
+        "AwayTeam": "Leeds",
         "PredictedScore": "1 - 3",
-        "ActualScore": "2 - 2",
-        "ExpectedGoals": "0.67 - 3.01"
+        "ActualScore": "1 - 2",
+        "ExpectedGoals": "1.22 - 3.19",
+        "Date": "2026-01-25"
     },
     {
-        "HomeTeam": "Man City",
-        "AwayTeam": "Wolves",
-        "PredictedScore": "1 - 1",
-        "ActualScore": "2 - 0",
-        "ExpectedGoals": "1.12 - 0.94"
-    },
-    {
-        "HomeTeam": "Bournemouth",
-        "AwayTeam": "Liverpool",
-        "PredictedScore": "3 - 1",
-        "ActualScore": "3 - 2",
-        "ExpectedGoals": "2.84 - 1.43"
-    },
-    {
-        "HomeTeam": "Crystal Palace",
-        "AwayTeam": "Chelsea",
-        "PredictedScore": "0 - 2",
-        "ActualScore": "1 - 3",
-        "ExpectedGoals": "0.42 - 2.44"
-    },
-    {
-        "HomeTeam": "Newcastle",
-        "AwayTeam": "Aston Villa",
-        "PredictedScore": "3 - 2",
-        "ActualScore": "0 - 2",
-        "ExpectedGoals": "2.75 - 1.93"
-    },
-    {
-        "HomeTeam": "Brentford",
-        "AwayTeam": "Nott'm Forest",
+        "HomeTeam": "Leeds",
+        "AwayTeam": "Arsenal",
         "PredictedScore": "1 - 2",
-        "ActualScore": "0 - 2",
-        "ExpectedGoals": "1.11 - 1.56"
+        "ActualScore": "0 - 3",
+        "ExpectedGoals": "1.10 - 1.67",
+        "Date": "2026-01-25"
     },
     {
-        "HomeTeam": "Arsenal",
-        "AwayTeam": "Man United",
-        "PredictedScore": "3 - 1",
+        "HomeTeam": "Wolves",
+        "AwayTeam": "Bournemouth",
+        "PredictedScore": "1 - 4",
+        "ActualScore": "1 - 2",
+        "ExpectedGoals": "1.14 - 4.24",
+        "Date": "2026-01-25"
+    },
+    {
+        "HomeTeam": "Brighton",
+        "AwayTeam": "Everton",
+        "PredictedScore": "1 - 1",
+        "ActualScore": "2 - 1",
+        "ExpectedGoals": "0.93 - 1.10",
+        "Date": "2026-01-25"
+    },
+    {
+        "HomeTeam": "Chelsea",
+        "AwayTeam": "West Ham",
+        "PredictedScore": "1 - 2",
+        "ActualScore": "3 - 0",
+        "ExpectedGoals": "0.90 - 1.82",
+        "Date": "2026-01-25"
+    },
+    {
+        "HomeTeam": "Liverpool",
+        "AwayTeam": "Newcastle",
+        "PredictedScore": "1 - 1",
+        "ActualScore": "4 - 2",
+        "ExpectedGoals": "1.03 - 0.92",
+        "Date": "2026-01-25"
+    },
+    {
+        "HomeTeam": "Aston Villa",
+        "AwayTeam": "Brentford",
+        "PredictedScore": "1 - 1",
+        "ActualScore": "2 - 1",
+        "ExpectedGoals": "1.49 - 0.96",
+        "Date": "2026-01-25"
+    },
+    {
+        "HomeTeam": "Man United",
+        "AwayTeam": "Fulham",
+        "PredictedScore": "2 - 2",
+        "ActualScore": "1 - 1",
+        "ExpectedGoals": "1.51 - 1.96",
+        "Date": "2026-01-25"
+    },
+    {
+        "HomeTeam": "Nott'm Forest",
+        "AwayTeam": "Crystal Palace",
+        "PredictedScore": "1 - 2",
+        "ActualScore": "1 - 0",
+        "ExpectedGoals": "0.70 - 2.38",
+        "Date": "2026-01-26"
+    },
+    {
+        "HomeTeam": "Tottenham",
+        "AwayTeam": "Man City",
+        "PredictedScore": "1 - 3",
         "ActualScore": "2 - 3",
-        "ExpectedGoals": "2.99 - 0.67"
+        "ExpectedGoals": "1.34 - 3.09",
+        "Date": "2026-01-26"
+    },
+    {
+        "HomeTeam": "Sunderland",
+        "AwayTeam": "Burnley",
+        "PredictedScore": "1 - 2",
+        "ActualScore": "0 - 1",
+        "ExpectedGoals": "1.36 - 1.84",
+        "Date": "2026-01-26"
     }
 ]
