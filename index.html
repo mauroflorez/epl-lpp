@@ -266,7 +266,7 @@
                     <thead>
                         <tr>
                             <th>Match</th>
-                            <th>Date PT</th>
+                            <th>Date</th>
                             <th>Pred</th>
                             <th>H/D/A %</th>
                             <th>Actual</th>
@@ -282,10 +282,31 @@
         <div class="info-section">
             <h3>📈 How It Works</h3>
             <p>
-                Our <strong>Poisson regression model</strong> predicts expected goals based on team attack/defense
-                strength.
-                The H/D/A % shows probability of Home Win / Draw / Away Win.
+                Our <strong>Poisson regression model</strong> predicts expected goals (xG) for each team.
+                The H/D/A % shows the probability of Home Win / Draw / Away Win based on the Poisson distribution.
                 Click any current matchday row to see the detailed scoreline probability heatmap.
+            </p>
+
+            <h3 style="margin-top: 1rem;">⚽ Model Features</h3>
+            <ul style="color: #666; margin: 0.5rem 0; padding-left: 1.5rem; line-height: 1.6;">
+                <li><strong>Team Attack Strength:</strong> How many goals a team typically scores</li>
+                <li><strong>Team Defensive Weakness:</strong> How many goals they typically concede</li>
+                <li><strong>League Position:</strong> Current standings in the table</li>
+                <li><strong>Rolling Stats:</strong> Goals, shots, and shots on target (last 5 games)</li>
+                <li><strong>Home Advantage:</strong> Teams perform better at home on average</li>
+            </ul>
+
+            <h3 style="margin-top: 1rem;">📊 Understanding xG</h3>
+            <p>
+                Expected Goals (xG) represents the average number of goals a team would score given the match
+                conditions.
+                Since we use a Poisson distribution, xG is never exactly 0 - even weak teams have some probability of
+                scoring.
+                The probability heatmap shows the likelihood of each specific scoreline (e.g., 1-0, 2-1, etc.).
+            </p>
+
+            <p style="color: #999; font-size: 0.8rem; margin-top: 1rem; font-style: italic;">
+                ⚠️ This is an experimental project for learning purposes. Predictions are not guaranteed to be accurate.
             </p>
         </div>
     </div>
@@ -345,14 +366,12 @@
             }
         }
 
-        function formatDate(dateStr, timeStr) {
+        function formatDate(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr + 'T12:00:00');
             const day = date.getDate().toString().padStart(2, '0');
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            let result = `${day}/${month}`;
-            if (timeStr) result += ` ${timeStr}`;
-            return result;
+            return `${day}/${month}`;
         }
 
         function formatWinProbs(winProbs) {
@@ -397,7 +416,7 @@
 
                 const actual = item.Actual || '-';
                 const actualClass = actual === '-' ? 'pending' : 'actual-score';
-                const dateDisplay = formatDate(item.MatchDate, item.MatchTime_PT);
+                const dateDisplay = formatDate(item.MatchDate);
 
                 row.innerHTML = `
                     <td>${item.HomeTeam} vs ${item.AwayTeam}</td>

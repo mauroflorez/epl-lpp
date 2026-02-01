@@ -8,7 +8,7 @@
             "AwayGoals_Exp": 2.35,
             "PredictedScore": "1 - 2",
             "MatchDate": "2026-01-31",
-            "Actual": "-",
+            "Actual": "0 - 4",
             "WinProbs": {
                 "H": 15.8,
                 "D": 21.2,
@@ -60,7 +60,7 @@
             "AwayGoals_Exp": 1.72,
             "PredictedScore": "1 - 2",
             "MatchDate": "2026-01-31",
-            "Actual": "-",
+            "Actual": "0 - 2",
             "WinProbs": {
                 "H": 26.2,
                 "D": 26.1,
@@ -112,7 +112,7 @@
             "AwayGoals_Exp": 1.02,
             "PredictedScore": "1 - 1",
             "MatchDate": "2026-01-31",
-            "Actual": "-",
+            "Actual": "1 - 1",
             "WinProbs": {
                 "H": 47.2,
                 "D": 27.8,
@@ -164,7 +164,7 @@
             "AwayGoals_Exp": 1.12,
             "PredictedScore": "2 - 1",
             "MatchDate": "2026-01-31",
-            "Actual": "-",
+            "Actual": "3 - 2",
             "WinProbs": {
                 "H": 53.8,
                 "D": 24.2,
@@ -216,7 +216,7 @@
             "AwayGoals_Exp": 1.15,
             "PredictedScore": "2 - 1",
             "MatchDate": "2026-01-31",
-            "Actual": "-",
+            "Actual": "4 - 1",
             "WinProbs": {
                 "H": 61.2,
                 "D": 21.5,
