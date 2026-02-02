@@ -3,6 +3,7 @@ Prediction script for Bayesian Poisson EPL model.
 
 Uses the trained bambi/statsmodels models to predict match outcomes.
 Calculates all necessary features on-the-fly for prediction.
+Includes xG, xGA, and Elo features when available.
 """
 
 import pandas as pd
@@ -15,12 +16,22 @@ from datetime import datetime
 from tabulate import tabulate
 from scipy.stats import poisson
 
+# Try to import advanced data loader for Elo ratings
+try:
+    from advanced_data_loader import fetch_elo_ratings, fetch_understat_xg
+    HAS_ADVANCED_DATA = True
+except ImportError:
+    HAS_ADVANCED_DATA = False
+
 # Configuration
 DATA_FILE = "data/matches.csv"
 FEATURES_FILE = "data/features.csv"
 MODEL_FILE = "models/models.pkl"
 ROLLING_WINDOW = 5
 CURRENT_SEASON = 2526
+
+# Cache for Elo ratings
+_elo_cache = None
 
 def calculate_poisson_probs(home_exp, away_exp, max_goals=5):
     """
@@ -78,10 +89,11 @@ def load_data():
     
     return matches, None
 
-def get_team_latest_stats(df, team_name):
+def get_team_latest_stats(df, team_name, features_df=None):
     """
     Calculate the latest rolling stats for a team from their most recent games.
     Returns all stats needed for the Bayesian model.
+    If features_df is provided, also extracts xG/xGA stats from it.
     """
     # Filter for games involving this team
     team_games = df[(df['HomeTeam'] == team_name) | (df['AwayTeam'] == team_name)].copy()
@@ -117,7 +129,7 @@ def get_team_latest_stats(df, team_name):
     
     stats_df = pd.DataFrame(stats_list).tail(ROLLING_WINDOW)
     
-    return {
+    result = {
         'AvgGoalsScored': stats_df['GoalsScored'].mean(),
         'AvgGoalsConceded': stats_df['GoalsConceded'].mean(),
         'AvgPoints': stats_df['Points'].mean(),
@@ -126,6 +138,50 @@ def get_team_latest_stats(df, team_name):
         'AvgShotsOnTarget': stats_df['ShotsOnTarget'].mean() if 'ShotsOnTarget' in stats_df else np.nan,
         'AvgShotsOnTargetConceded': stats_df['ShotsOnTargetConceded'].mean() if 'ShotsOnTargetConceded' in stats_df else np.nan
     }
+    
+    # Try to get xG stats from features dataframe
+    if features_df is not None:
+        # Get latest xG averages from features file
+        team_features = features_df[
+            (features_df['HomeTeam'] == team_name) | (features_df['AwayTeam'] == team_name)
+        ].sort_values('Date')
+        
+        if len(team_features) > 0:
+            latest = team_features.iloc[-1]
+            if team_features.iloc[-1]['HomeTeam'] == team_name:
+                result['AvgxG'] = latest.get('Home_AvgxG', np.nan)
+                result['AvgxGA'] = latest.get('Home_AvgxGA', np.nan)
+            else:
+                result['AvgxG'] = latest.get('Away_AvgxG', np.nan)
+                result['AvgxGA'] = latest.get('Away_AvgxGA', np.nan)
+    
+    return result
+
+
+def get_team_elo(team_name):
+    """
+    Get current Elo rating for a team.
+    Uses cached data if available.
+    """
+    global _elo_cache
+    
+    if not HAS_ADVANCED_DATA:
+        return None
+    
+    # Load Elo ratings if not cached
+    if _elo_cache is None:
+        _elo_cache = fetch_elo_ratings(use_cache=True)
+    
+    if _elo_cache is None:
+        return None
+    
+    # Find team in cache
+    team_row = _elo_cache[_elo_cache['Team'] == team_name]
+    if len(team_row) > 0:
+        return float(team_row.iloc[0]['Elo'])
+    
+    # Try alternative names
+    return None
 
 def get_team_position(df, team_name):
     """Calculate current league position for a team."""
@@ -162,12 +218,13 @@ def get_team_position(df, team_name):
     
     return 10  # Default middle position if not found
 
-def predict_match(home_team, away_team, models, df):
+def predict_match(home_team, away_team, models, df, features_df=None):
     """
     Predict a single match using the trained Bayesian models.
+    Includes xG/xGA and Elo features when available.
     """
-    home_stats = get_team_latest_stats(df, home_team)
-    away_stats = get_team_latest_stats(df, away_team)
+    home_stats = get_team_latest_stats(df, home_team, features_df)
+    away_stats = get_team_latest_stats(df, away_team, features_df)
     
     if not home_stats:
         return {'error': f"No data for {home_team}"}
@@ -176,6 +233,10 @@ def predict_match(home_team, away_team, models, df):
     
     home_position = get_team_position(df, home_team)
     away_position = get_team_position(df, away_team)
+    
+    # Get Elo ratings
+    home_elo = get_team_elo(home_team)
+    away_elo = get_team_elo(away_team)
     
     # Build feature DataFrame matching the training format
     features = pd.DataFrame([{
@@ -193,14 +254,29 @@ def predict_match(home_team, away_team, models, df):
         'Away_AvgShotsOnTarget': away_stats.get('AvgShotsOnTarget', 3.5),
         # Estimate odds probabilities based on position (rough approximation)
         'Odds_HomeProb': max(0.25, 0.55 - (home_position - away_position) * 0.02),
-        'Odds_AwayProb': max(0.15, 0.25 + (home_position - away_position) * 0.02)
+        'Odds_AwayProb': max(0.15, 0.25 + (home_position - away_position) * 0.02),
+        # xG features
+        'Home_AvgxG': home_stats.get('AvgxG', home_stats['AvgGoalsScored']),
+        'Home_AvgxGA': home_stats.get('AvgxGA', home_stats['AvgGoalsConceded']),
+        'Away_AvgxG': away_stats.get('AvgxG', away_stats['AvgGoalsScored']),
+        'Away_AvgxGA': away_stats.get('AvgxGA', away_stats['AvgGoalsConceded']),
+        'Home_xGDiff': home_stats.get('AvgxG', home_stats['AvgGoalsScored']) - home_stats.get('AvgxGA', home_stats['AvgGoalsConceded']),
+        'Away_xGDiff': away_stats.get('AvgxG', away_stats['AvgGoalsScored']) - away_stats.get('AvgxGA', away_stats['AvgGoalsConceded']),
+        # Elo features
+        'Home_Elo': home_elo if home_elo else 1500,
+        'Away_Elo': away_elo if away_elo else 1500,
+        'Elo_Diff': (home_elo - away_elo) if (home_elo and away_elo) else 0
     }])
     
     # Replace NaN with reasonable defaults
     features = features.fillna({
         'Home_AvgShots': 12, 'Away_AvgShots': 10,
         'Home_AvgShotsOnTarget': 4, 'Away_AvgShotsOnTarget': 3.5,
-        'Odds_HomeProb': 0.45, 'Odds_AwayProb': 0.28
+        'Odds_HomeProb': 0.45, 'Odds_AwayProb': 0.28,
+        'Home_AvgxG': 1.3, 'Away_AvgxG': 1.1,
+        'Home_AvgxGA': 1.1, 'Away_AvgxGA': 1.3,
+        'Home_xGDiff': 0.2, 'Away_xGDiff': -0.2,
+        'Home_Elo': 1500, 'Away_Elo': 1500, 'Elo_Diff': 0
     })
     
     model_type = models.get('model_type', 'unknown')
@@ -342,7 +418,7 @@ def main():
     
     if args.home and args.away:
         # Single match prediction
-        result = predict_match(args.home, args.away, models, df)
+        result = predict_match(args.home, args.away, models, df, features_df)
         if 'error' in result:
             print(result['error'])
         else:
@@ -358,7 +434,7 @@ def main():
         current_predictions = []
         for h, a, date_str in matchday_current:
             if h in teams and a in teams:
-                result = predict_match(h, a, models, df)
+                result = predict_match(h, a, models, df, features_df)
                 if 'error' not in result:
                     result['MatchDate'] = date_str
                     result['Actual'] = '-'  # Will be updated when game is played
@@ -397,7 +473,7 @@ def main():
                 print("Team not found.")
                 continue
             
-            result = predict_match(h, a, models, df)
+            result = predict_match(h, a, models, df, features_df)
             if 'error' in result:
                 print(result['error'])
             else:

@@ -169,7 +169,13 @@ def train_statsmodels_fallback(train_df):
         'Home_AvgGoalsScored', 'Home_AvgGoalsConceded',
         'Away_AvgGoalsScored', 'Away_AvgGoalsConceded',
         'Home_AvgShots', 'Away_AvgShots',
-        'Odds_HomeProb', 'Odds_AwayProb'
+        'Odds_HomeProb', 'Odds_AwayProb',
+        # New xG features
+        'Home_AvgxG', 'Home_AvgxGA',
+        'Away_AvgxG', 'Away_AvgxGA',
+        'Home_xGDiff', 'Away_xGDiff',
+        # New Elo features
+        'Home_Elo', 'Away_Elo', 'Elo_Diff'
     ]
     
     for col in numeric_cols:

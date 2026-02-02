@@ -42,7 +42,7 @@
             "Away": "Wolves",
             "Actual": "2 - 0",
             "Date": "2026-01-25",
-            "PredictedScore": "2 - 1",
+            "PredictedScore": "1 - 1",
             "WinProbs": {
                 "H": 52.1,
                 "D": 25.8,
@@ -54,11 +54,11 @@
             "Away": "Liverpool",
             "Actual": "3 - 2",
             "Date": "2026-01-25",
-            "PredictedScore": "1 - 2",
+            "PredictedScore": "3 - 1",
             "WinProbs": {
-                "H": 28.5,
+                "H": 48.5,
                 "D": 24.2,
-                "A": 47.3
+                "A": 27.3
             }
         },
         {
@@ -78,7 +78,7 @@
             "Away": "Aston Villa",
             "Actual": "0 - 2",
             "Date": "2026-01-25",
-            "PredictedScore": "2 - 1",
+            "PredictedScore": "3 - 2",
             "WinProbs": {
                 "H": 52.8,
                 "D": 24.5,
