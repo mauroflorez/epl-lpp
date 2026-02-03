@@ -10,13 +10,14 @@ PredictionDate,Date,HomeTeam,AwayTeam,PredResult,ActualResult,Correct
 2026-01-28 00:00:00,2026-01-26,Nott'm Forest,Crystal Palace,A,H,0.0
 2026-01-28 00:00:00,2026-01-26,Tottenham,Man City,A,A,1.0
 2026-01-28 00:00:00,2026-01-26,Sunderland,Burnley,A,A,1.0
-2026-02-02,,Leeds,Arsenal,A,,
-2026-02-02,,Wolves,Bournemouth,A,,
-2026-02-02,,Brighton,Everton,D,,
-2026-02-02,,Chelsea,West Ham,D,,
-2026-02-02,,Liverpool,Newcastle,D,,
-2026-02-02,,Aston Villa,Brentford,D,,
-2026-02-02,,Man United,Fulham,H,,
-2026-02-02,,Nott'm Forest,Crystal Palace,A,,
-2026-02-02,,Tottenham,Man City,A,,
-2026-02-02,,Sunderland,Burnley,D,,
+2026-02-02 00:00:00,,Leeds,Arsenal,A,,
+2026-02-02 00:00:00,,Wolves,Bournemouth,A,,
+2026-02-02 00:00:00,,Brighton,Everton,D,,
+2026-02-02 00:00:00,,Chelsea,West Ham,D,,
+2026-02-02 00:00:00,,Liverpool,Newcastle,D,,
+2026-02-02 00:00:00,,Aston Villa,Brentford,D,,
+2026-02-02 00:00:00,,Man United,Fulham,H,,
+2026-02-02 00:00:00,,Nott'm Forest,Crystal Palace,A,,
+2026-02-02 00:00:00,,Tottenham,Man City,A,,
+2026-02-02 00:00:00,2026-02-02,Sunderland,Burnley,D,H,0.0
+2026-02-03,,Sunderland,Burnley,A,,
