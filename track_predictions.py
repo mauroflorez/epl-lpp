@@ -25,10 +25,13 @@ def load_history():
         # Use format='mixed' to handle various date formats
         df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
         df['PredictionDate'] = pd.to_datetime(df['PredictionDate'], format='mixed', errors='coerce')
+        # Handle MatchDate if present
+        if 'MatchDate' in df.columns:
+            df['MatchDate'] = pd.to_datetime(df['MatchDate'], format='mixed', errors='coerce')
         return df
     else:
         return pd.DataFrame(columns=[
-            'PredictionDate', 'Date', 'HomeTeam', 'AwayTeam', 
+            'PredictionDate', 'MatchDate', 'Date', 'HomeTeam', 'AwayTeam', 
             'PredResult', 'ActualResult', 'Correct'
         ])
 
@@ -65,22 +68,32 @@ def log_new_predictions(history_df, predictions_file=PREDICTIONS_FILE):
     for pred in predictions:
         home = pred['HomeTeam']
         away = pred['AwayTeam']
+        match_date = pred.get('MatchDate', '')
         
-        # Check if this exact match (home/away combo) already exists in history
-        # regardless of prediction date - prevents duplicates across runs
+        # Check if this exact match (home/away combo with same match date) already exists in history
+        # This prevents duplicates when the same fixture appears in predictions.json on consecutive runs
         exists = False
         if len(history_df) > 0:
-            # Check if this match already exists and hasn't been evaluated yet
-            exists = (
-                (history_df['HomeTeam'] == home) & 
-                (history_df['AwayTeam'] == away) &
-                (history_df['ActualResult'].isna() | (history_df['ActualResult'] == ''))
-            ).any()
+            # Use MatchDate for deduplication if available
+            if match_date and 'MatchDate' in history_df.columns:
+                exists = (
+                    (history_df['HomeTeam'] == home) & 
+                    (history_df['AwayTeam'] == away) &
+                    (history_df['MatchDate'].astype(str) == match_date)
+                ).any()
+            else:
+                # Fallback: check if match exists and hasn't been evaluated
+                exists = (
+                    (history_df['HomeTeam'] == home) & 
+                    (history_df['AwayTeam'] == away) &
+                    (history_df['ActualResult'].isna() | (history_df['ActualResult'] == ''))
+                ).any()
         
         if not exists:
             pred_result = get_predicted_result(pred['HomeGoals_Exp'], pred['AwayGoals_Exp'])
             new_rows.append({
                 'PredictionDate': today,
+                'MatchDate': match_date,  # Store the actual match date
                 'Date': pd.NaT,  # Will be filled when game is played
                 'HomeTeam': home,
                 'AwayTeam': away,

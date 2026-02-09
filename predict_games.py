@@ -23,6 +23,19 @@ try:
 except ImportError:
     HAS_ADVANCED_DATA = False
 
+# Import fixture scraper for dynamic fixture fetching
+try:
+    from fixture_scraper import (
+        get_current_matchday, 
+        scrape_fixtures, 
+        fetch_matches,
+        normalize_team_name
+    )
+    HAS_FIXTURE_SCRAPER = True
+except ImportError:
+    HAS_FIXTURE_SCRAPER = False
+    print("Warning: fixture_scraper not available, using fallback")
+
 # Configuration
 DATA_FILE = "data/matches.csv"
 FEATURES_FILE = "data/features.csv"
@@ -334,68 +347,99 @@ def predict_match(home_team, away_team, models, df, features_df=None):
 
 def get_next_fixtures():
     """
-    Define upcoming fixtures organized by matchday.
+    Fetch upcoming fixtures dynamically from the API.
     Format: (HomeTeam, AwayTeam, MatchDate)
-    Returns all fixtures for the current matchday being played.
+    Returns fixtures for the current matchday and next matchday.
     """
-    # Matchday 24 - Jan 31 to Feb 2, 2026 (CURRENT)
-    matchday_24 = [
-        ("Leeds", "Arsenal", "2026-01-31"),
-        ("Wolves", "Bournemouth", "2026-01-31"),
-        ("Brighton", "Everton", "2026-01-31"),
-        ("Chelsea", "West Ham", "2026-01-31"),
-        ("Liverpool", "Newcastle", "2026-01-31"),
-        ("Aston Villa", "Brentford", "2026-02-01"),
-        ("Man United", "Fulham", "2026-02-01"),
-        ("Nott'm Forest", "Crystal Palace", "2026-02-01"),
-        ("Tottenham", "Man City", "2026-02-01"),
-        ("Sunderland", "Burnley", "2026-02-02"),
-    ]
+    if not HAS_FIXTURE_SCRAPER:
+        print("Fixture scraper not available, returning empty fixtures")
+        return [], [], 24
     
-    # Matchday 25 - Feb 7-8, 2026
-    matchday_25 = [
-        ("Bournemouth", "Aston Villa", "2026-02-07"),
-        ("Arsenal", "Sunderland", "2026-02-07"),
-        ("Burnley", "West Ham", "2026-02-07"),
-        ("Fulham", "Everton", "2026-02-07"),
-        ("Man United", "Tottenham", "2026-02-07"),
-        ("Newcastle", "Brentford", "2026-02-07"),
-        ("Wolves", "Chelsea", "2026-02-07"),
-        ("Leeds", "Nott'm Forest", "2026-02-06"),
-        ("Brighton", "Crystal Palace", "2026-02-08"),
-        ("Liverpool", "Man City", "2026-02-08"),
-    ]
-    
-    return matchday_24, matchday_25, 24  # Returns current matchday number
+    try:
+        # Get current matchday from API
+        current_md = get_current_matchday()
+        print(f"Current matchday from API: {current_md}")
+        
+        # Fetch current matchday fixtures
+        current_fixtures = scrape_fixtures(current_md)
+        current_list = [
+            (fix['HomeTeam'], fix['AwayTeam'], fix['MatchDate'])
+            for fix in current_fixtures
+            if fix['HomeTeam'] and fix['AwayTeam']
+        ]
+        
+        # Fetch next matchday fixtures
+        next_fixtures = scrape_fixtures(current_md + 1)
+        next_list = [
+            (fix['HomeTeam'], fix['AwayTeam'], fix['MatchDate'])
+            for fix in next_fixtures
+            if fix['HomeTeam'] and fix['AwayTeam']
+        ]
+        
+        print(f"Fetched {len(current_list)} current fixtures, {len(next_list)} next fixtures")
+        return current_list, next_list, current_md
+        
+    except Exception as e:
+        print(f"Error fetching fixtures from API: {e}")
+        return [], [], 24
 
-def get_past_results():
+def get_past_results(current_matchday=None):
     """
-    Matchday 23 results (completed matchday).
-    These are games that have been played and have actual scores.
+    Fetch past results dynamically from the API.
+    Gets the previous matchday's completed games with actual scores.
     """
-    return [
-        # Matchday 23 - Jan 25-26, 2026
-        {"Home": "West Ham", "Away": "Sunderland", "Actual": "3 - 1", "Date": "2026-01-25",
-         "PredictedScore": "1 - 1", "WinProbs": {"H": 40.2, "D": 28.5, "A": 31.3}},
-        {"Home": "Fulham", "Away": "Brighton", "Actual": "2 - 1", "Date": "2026-01-25",
-         "PredictedScore": "1 - 2", "WinProbs": {"H": 35.1, "D": 27.8, "A": 37.1}},
-        {"Home": "Burnley", "Away": "Tottenham", "Actual": "2 - 2", "Date": "2026-01-25",
-         "PredictedScore": "1 - 3", "WinProbs": {"H": 18.2, "D": 22.4, "A": 59.4}},
-        {"Home": "Man City", "Away": "Wolves", "Actual": "2 - 0", "Date": "2026-01-25",
-         "PredictedScore": "1 - 1", "WinProbs": {"H": 52.1, "D": 25.8, "A": 22.1}},
-        {"Home": "Bournemouth", "Away": "Liverpool", "Actual": "3 - 2", "Date": "2026-01-25",
-         "PredictedScore": "3 - 1", "WinProbs": {"H": 48.5, "D": 24.2, "A": 27.3}},
-        {"Home": "Crystal Palace", "Away": "Chelsea", "Actual": "1 - 3", "Date": "2026-01-25",
-         "PredictedScore": "0 - 2", "WinProbs": {"H": 15.2, "D": 21.8, "A": 63.0}},
-        {"Home": "Newcastle", "Away": "Aston Villa", "Actual": "0 - 2", "Date": "2026-01-25",
-         "PredictedScore": "3 - 2", "WinProbs": {"H": 52.8, "D": 24.5, "A": 22.7}},
-        {"Home": "Brentford", "Away": "Nott'm Forest", "Actual": "0 - 2", "Date": "2026-01-26",
-         "PredictedScore": "1 - 2", "WinProbs": {"H": 32.1, "D": 27.5, "A": 40.4}},
-        {"Home": "Arsenal", "Away": "Man United", "Actual": "2 - 3", "Date": "2026-01-26",
-         "PredictedScore": "3 - 1", "WinProbs": {"H": 65.2, "D": 20.1, "A": 14.7}},
-        {"Home": "Everton", "Away": "Leicester", "Actual": "1 - 0", "Date": "2026-01-26",
-         "PredictedScore": "1 - 1", "WinProbs": {"H": 42.5, "D": 28.2, "A": 29.3}},
-    ], 23  # Returns matchday number
+    if not HAS_FIXTURE_SCRAPER:
+        print("Fixture scraper not available, returning empty results")
+        return [], 23
+    
+    try:
+        # Determine the previous matchday
+        if current_matchday is None:
+            current_matchday = get_current_matchday()
+        
+        past_md = current_matchday - 1
+        if past_md < 1:
+            return [], 0
+        
+        print(f"Fetching past results for matchday {past_md}")
+        
+        # Fetch finished matches from the previous matchday
+        matches = fetch_matches(matchday=past_md, status="FINISHED")
+        
+        results = []
+        for m in matches:
+            home = m.get("homeTeam", {}).get("shortName", m.get("homeTeam", {}).get("name", ""))
+            away = m.get("awayTeam", {}).get("shortName", m.get("awayTeam", {}).get("name", ""))
+            
+            # Normalize team names
+            home = normalize_team_name(home)
+            away = normalize_team_name(away)
+            
+            # Get actual score
+            ft = m.get("score", {}).get("fullTime", {})
+            home_goals = ft.get("home", 0)
+            away_goals = ft.get("away", 0)
+            actual = f"{home_goals} - {away_goals}"
+            
+            # Get match date
+            utc_date = m.get("utcDate", "")
+            match_date = utc_date[:10] if utc_date else ""
+            
+            results.append({
+                "Home": home,
+                "Away": away,
+                "Actual": actual,
+                "Date": match_date,
+                "PredictedScore": "-",  # Will be filled from saved predictions
+                "WinProbs": {"H": 0, "D": 0, "A": 0}
+            })
+        
+        print(f"Fetched {len(results)} past results for matchday {past_md}")
+        return results, past_md
+        
+    except Exception as e:
+        print(f"Error fetching past results: {e}")
+        return [], 23
 
 def main():
     parser = argparse.ArgumentParser(description="Predict EPL Match Scores")
@@ -451,7 +495,7 @@ def main():
         print(f"Predictions saved to {args.json}")
         
         if args.past_results_json:
-            past_results_list, past_md_num = get_past_results()
+            past_results_list, past_md_num = get_past_results(current_md_num)
             past_output = {
                 'matchday': past_md_num,
                 'results': past_results_list

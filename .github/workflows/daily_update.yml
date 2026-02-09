@@ -27,6 +27,8 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run Data Pipeline & Prediction
+      env:
+        FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
       run: |
         python data_loader.py
         python feature_engineering.py
@@ -35,6 +37,8 @@ jobs:
         python track_predictions.py
 
     - name: Update with live results from API
+      env:
+        FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
       run: |
         python fixture_scraper.py --update-actuals predictions.json
       continue-on-error: true
