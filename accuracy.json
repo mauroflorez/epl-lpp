@@ -1,7 +1,7 @@
 {
-  "total_predictions": 30,
+  "total_predictions": 38,
   "evaluated": 12,
   "correct": 7,
   "accuracy": 58.3,
-  "pending": 18
+  "pending": 26
 }
