@@ -1,29 +1,31 @@
 PredictionDate,Date,HomeTeam,AwayTeam,PredResult,ActualResult,Correct,MatchDate
-2026-01-28,2026-01-25,Everton,Leeds,A,A,1.0,
-2026-01-28,2026-01-25,Leeds,Arsenal,A,A,1.0,
-2026-01-28,2026-01-25,Wolves,Bournemouth,A,A,1.0,
-2026-01-28,2026-01-25,Brighton,Everton,D,H,0.0,
-2026-01-28,2026-01-25,Chelsea,West Ham,A,H,0.0,
-2026-01-28,2026-01-25,Liverpool,Newcastle,D,H,0.0,
-2026-01-28,2026-01-25,Aston Villa,Brentford,H,H,1.0,
-2026-01-28,2026-01-25,Man United,Fulham,D,D,1.0,
-2026-01-28,2026-01-26,Nott'm Forest,Crystal Palace,A,H,0.0,
-2026-01-28,2026-01-26,Tottenham,Man City,A,A,1.0,
-2026-01-28,2026-01-26,Sunderland,Burnley,A,A,1.0,
-2026-02-02,2026-02-02,Sunderland,Burnley,D,H,0.0,
-2026-02-09,2026-02-07 00:00:00,Man United,Tottenham,A,H,0.0,2026-02-07
-2026-02-09,2026-02-07 00:00:00,Bournemouth,Aston Villa,A,D,0.0,2026-02-07
-2026-02-09,2026-02-07 00:00:00,Arsenal,Sunderland,H,H,1.0,2026-02-07
-2026-02-09,2026-02-07 00:00:00,Burnley,West Ham,D,A,0.0,2026-02-07
-2026-02-09,2026-02-07 00:00:00,Fulham,Everton,D,A,0.0,2026-02-07
-2026-02-09,2026-02-07 00:00:00,Newcastle,Brentford,H,A,0.0,2026-02-07
-2026-02-09,2026-02-08 00:00:00,Brighton,Crystal Palace,A,A,1.0,2026-02-08
-2026-02-09,2026-02-08 00:00:00,Liverpool,Man City,A,A,1.0,2026-02-08
-2026-02-10,,Everton,Bournemouth,A,,,2026-02-10
-2026-02-10,,Tottenham,Newcastle,D,,,2026-02-10
-2026-02-10,,West Ham,Man United,D,,,2026-02-10
-2026-02-10,,Aston Villa,Brighton,A,,,2026-02-11
-2026-02-10,,Crystal Palace,Burnley,D,,,2026-02-11
-2026-02-10,,Man City,Fulham,H,,,2026-02-11
-2026-02-10,,Sunderland,Liverpool,D,,,2026-02-11
-2026-02-10,,Brentford,Arsenal,A,,,2026-02-12
+2026-01-28 00:00:00,2026-01-25,Everton,Leeds,A,A,1.0,
+2026-01-28 00:00:00,2026-01-25,Leeds,Arsenal,A,A,1.0,
+2026-01-28 00:00:00,2026-01-25,Wolves,Bournemouth,A,A,1.0,
+2026-01-28 00:00:00,2026-01-25,Brighton,Everton,D,H,0.0,
+2026-01-28 00:00:00,2026-01-25,Chelsea,West Ham,A,H,0.0,
+2026-01-28 00:00:00,2026-01-25,Liverpool,Newcastle,D,H,0.0,
+2026-01-28 00:00:00,2026-01-25,Aston Villa,Brentford,H,H,1.0,
+2026-01-28 00:00:00,2026-01-25,Man United,Fulham,D,D,1.0,
+2026-01-28 00:00:00,2026-01-26,Nott'm Forest,Crystal Palace,A,H,0.0,
+2026-01-28 00:00:00,2026-01-26,Tottenham,Man City,A,A,1.0,
+2026-01-28 00:00:00,2026-01-26,Sunderland,Burnley,A,A,1.0,
+2026-02-02 00:00:00,2026-02-02,Sunderland,Burnley,D,H,0.0,
+2026-02-09 00:00:00,2026-02-07,Man United,Tottenham,A,H,0.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-07,Bournemouth,Aston Villa,A,D,0.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-07,Arsenal,Sunderland,H,H,1.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-07,Burnley,West Ham,D,A,0.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-07,Fulham,Everton,D,A,0.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-07,Newcastle,Brentford,H,A,0.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-08,Brighton,Crystal Palace,A,A,1.0,2026-02-08 00:00:00
+2026-02-09 00:00:00,2026-02-08,Liverpool,Man City,A,A,1.0,2026-02-08 00:00:00
+2026-02-10 00:00:00,,Everton,Bournemouth,A,,,2026-02-10 00:00:00
+2026-02-10 00:00:00,,Tottenham,Newcastle,D,,,2026-02-10 00:00:00
+2026-02-10 00:00:00,,West Ham,Man United,D,,,2026-02-10 00:00:00
+2026-02-10 00:00:00,,Aston Villa,Brighton,A,,,2026-02-11 00:00:00
+2026-02-10 00:00:00,,Crystal Palace,Burnley,D,,,2026-02-11 00:00:00
+2026-02-10 00:00:00,,Man City,Fulham,H,,,2026-02-11 00:00:00
+2026-02-10 00:00:00,,Sunderland,Liverpool,D,,,2026-02-11 00:00:00
+2026-02-10 00:00:00,,Brentford,Arsenal,A,,,2026-02-12 00:00:00
+2026-02-11,,Chelsea,Leeds,D,,,2026-02-10
+2026-02-11,,Nott'm Forest,Wolves,D,,,2026-02-11
