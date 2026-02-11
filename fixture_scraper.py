@@ -258,7 +258,7 @@ if __name__ == "__main__":
         print(f"Saved {len(fixtures)} fixtures to {args.output}")
     else:
         for fix in fixtures:
-            status = "✓" if fix["Actual"] != "-" else "⏳"
+            status = "[DONE]" if fix["Actual"] != "-" else "[PENDING]"
             print(f"{status} {fix['HomeTeam']} vs {fix['AwayTeam']} ({fix['DateDisplay']} {fix['MatchTime_PT']} PT) - {fix['Actual']}")
     
     if args.update_actuals:
