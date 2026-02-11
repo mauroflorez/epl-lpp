@@ -383,60 +383,122 @@ def get_next_fixtures():
         print(f"Error fetching fixtures from API: {e}")
         return [], [], 24
 
-def get_past_results(current_matchday=None):
+def load_previous_predictions(predictions_file="predictions.json"):
+    """
+    Load the current predictions.json before it gets overwritten.
+    Returns (matchday, lookup_dict) where lookup_dict is keyed by
+    'HomeTeam vs AwayTeam' for easy matching.
+    """
+    if not os.path.exists(predictions_file):
+        return None, {}
+
+    try:
+        with open(predictions_file, 'r') as f:
+            data = json.load(f)
+
+        matchday = data.get('matchday', None) if isinstance(data, dict) else None
+        predictions = data.get('predictions', data) if isinstance(data, dict) else data
+        lookup = {}
+        for pred in predictions:
+            key = f"{pred['HomeTeam']} vs {pred['AwayTeam']}"
+            lookup[key] = {
+                "PredictedScore": pred.get("PredictedScore", "-"),
+                "WinProbs": pred.get("WinProbs", {"H": 0, "D": 0, "A": 0}),
+                "HomeGoals_Exp": pred.get("HomeGoals_Exp", 0),
+                "AwayGoals_Exp": pred.get("AwayGoals_Exp", 0)
+            }
+        print(f"Loaded {len(lookup)} previous predictions (matchday {matchday}) for carry-forward")
+        return matchday, lookup
+    except Exception as e:
+        print(f"Error loading previous predictions: {e}")
+        return None, {}
+
+def get_past_results(current_matchday=None, previous_predictions=None,
+                     prev_matchday=None, past_results_file=None):
     """
     Fetch past results dynamically from the API.
     Gets the previous matchday's completed games with actual scores.
+    Matches them with saved predictions so the website can display both.
+
+    If previous_predictions matchday matches the past matchday, uses them.
+    Otherwise, preserves existing past_results.json data.
     """
     if not HAS_FIXTURE_SCRAPER:
         print("Fixture scraper not available, returning empty results")
         return [], 23
-    
+
+    if previous_predictions is None:
+        previous_predictions = {}
+
     try:
         # Determine the previous matchday
         if current_matchday is None:
             current_matchday = get_current_matchday()
-        
+
         past_md = current_matchday - 1
         if past_md < 1:
             return [], 0
-        
+
+        # Check if our saved predictions match the past matchday
+        # If predictions.json was already updated to the current matchday,
+        # the predictions won't match past results - preserve existing file
+        predictions_match = (prev_matchday is not None and prev_matchday == past_md)
+
+        if not predictions_match and past_results_file and os.path.exists(past_results_file):
+            try:
+                with open(past_results_file, 'r') as f:
+                    existing = json.load(f)
+                existing_md = existing.get('matchday', 0)
+                existing_results = existing.get('results', [])
+                # If existing file already has this matchday with predictions, keep it
+                has_predictions = any(r.get('PredictedScore', '-') != '-' for r in existing_results)
+                if existing_md == past_md and has_predictions:
+                    print(f"Preserving existing past_results.json (matchday {past_md} with predictions)")
+                    return existing_results, past_md
+            except Exception:
+                pass
+
         print(f"Fetching past results for matchday {past_md}")
-        
+
         # Fetch finished matches from the previous matchday
         matches = fetch_matches(matchday=past_md, status="FINISHED")
-        
+
         results = []
         for m in matches:
             home = m.get("homeTeam", {}).get("shortName", m.get("homeTeam", {}).get("name", ""))
             away = m.get("awayTeam", {}).get("shortName", m.get("awayTeam", {}).get("name", ""))
-            
+
             # Normalize team names
             home = normalize_team_name(home)
             away = normalize_team_name(away)
-            
+
             # Get actual score
             ft = m.get("score", {}).get("fullTime", {})
             home_goals = ft.get("home", 0)
             away_goals = ft.get("away", 0)
             actual = f"{home_goals} - {away_goals}"
-            
+
             # Get match date
             utc_date = m.get("utcDate", "")
             match_date = utc_date[:10] if utc_date else ""
-            
+
+            # Look up the prediction that was made for this game
+            key = f"{home} vs {away}"
+            prev = previous_predictions.get(key, {}) if predictions_match else {}
+
             results.append({
                 "Home": home,
                 "Away": away,
                 "Actual": actual,
                 "Date": match_date,
-                "PredictedScore": "-",  # Will be filled from saved predictions
-                "WinProbs": {"H": 0, "D": 0, "A": 0}
+                "PredictedScore": prev.get("PredictedScore", "-"),
+                "WinProbs": prev.get("WinProbs", {"H": 0, "D": 0, "A": 0})
             })
-        
-        print(f"Fetched {len(results)} past results for matchday {past_md}")
+
+        matched = sum(1 for r in results if r["PredictedScore"] != "-")
+        print(f"Fetched {len(results)} past results for matchday {past_md} ({matched} with predictions)")
         return results, past_md
-        
+
     except Exception as e:
         print(f"Error fetching past results: {e}")
         return [], 23
@@ -473,7 +535,11 @@ def main():
     elif args.json:
         # Batch predictions for current matchday
         matchday_current, matchday_next, current_md_num = get_next_fixtures()
-        
+
+        # IMPORTANT: Load previous predictions BEFORE overwriting predictions.json
+        # This allows us to carry forward predictions into past_results.json
+        prev_matchday, previous_predictions = load_previous_predictions(args.json)
+
         # Current matchday predictions
         current_predictions = []
         for h, a, date_str in matchday_current:
@@ -483,24 +549,27 @@ def main():
                     result['MatchDate'] = date_str
                     result['Actual'] = '-'  # Will be updated when game is played
                     current_predictions.append(result)
-        
+
         # Save with matchday info
         output = {
             'matchday': current_md_num,
             'predictions': current_predictions
         }
-        
+
         with open(args.json, 'w') as f:
             json.dump(output, f, indent=4)
         print(f"Predictions saved to {args.json}")
-        
+
         if args.past_results_json:
-            past_results_list, past_md_num = get_past_results(current_md_num)
+            past_results_list, past_md_num = get_past_results(
+                current_md_num, previous_predictions,
+                prev_matchday, args.past_results_json
+            )
             past_output = {
                 'matchday': past_md_num,
                 'results': past_results_list
             }
-            
+
             with open(args.past_results_json, 'w') as f:
                 json.dump(past_output, f, indent=4)
             print(f"Past results saved to {args.past_results_json}")

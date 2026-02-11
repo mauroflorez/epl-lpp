@@ -114,31 +114,51 @@ def update_with_actual_results(history_df, matches_file=MATCHES_FILE):
     """Update predictions with actual results from played games."""
     if not os.path.exists(matches_file):
         return history_df
-    
+
     matches = pd.read_csv(matches_file)
     matches['Date'] = pd.to_datetime(matches['Date'], dayfirst=True)
-    
+
     updated = 0
     for idx, row in history_df.iterrows():
         if row['ActualResult'] == '' or pd.isna(row['ActualResult']):
-            # Find matching game
-            match = matches[
-                (matches['HomeTeam'] == row['HomeTeam']) &
-                (matches['AwayTeam'] == row['AwayTeam']) &
-                (matches['Date'] >= row['PredictionDate'])
-            ]
-            
-            if len(match) > 0:
-                actual_match = match.iloc[0]
-                actual_result = actual_match['FTR']
-                history_df.at[idx, 'Date'] = actual_match['Date']
-                history_df.at[idx, 'ActualResult'] = actual_result
-                history_df.at[idx, 'Correct'] = 1 if row['PredResult'] == actual_result else 0
-                updated += 1
-    
+            # Try matching by MatchDate first (more precise), then by PredictionDate
+            match_date = row.get('MatchDate')
+            if pd.notna(match_date) and match_date != '':
+                match_date = pd.to_datetime(match_date, errors='coerce')
+                if pd.notna(match_date):
+                    match = matches[
+                        (matches['HomeTeam'] == row['HomeTeam']) &
+                        (matches['AwayTeam'] == row['AwayTeam']) &
+                        (matches['Date'].dt.date == match_date.date())
+                    ]
+                    if len(match) > 0:
+                        actual_match = match.iloc[0]
+                        actual_result = actual_match['FTR']
+                        history_df.at[idx, 'Date'] = actual_match['Date']
+                        history_df.at[idx, 'ActualResult'] = actual_result
+                        history_df.at[idx, 'Correct'] = 1 if row['PredResult'] == actual_result else 0
+                        updated += 1
+                        continue
+
+            # Fallback: match by team names and date after prediction
+            pred_date = row['PredictionDate']
+            if pd.notna(pred_date):
+                match = matches[
+                    (matches['HomeTeam'] == row['HomeTeam']) &
+                    (matches['AwayTeam'] == row['AwayTeam']) &
+                    (matches['Date'] >= pred_date)
+                ]
+                if len(match) > 0:
+                    actual_match = match.iloc[0]
+                    actual_result = actual_match['FTR']
+                    history_df.at[idx, 'Date'] = actual_match['Date']
+                    history_df.at[idx, 'ActualResult'] = actual_result
+                    history_df.at[idx, 'Correct'] = 1 if row['PredResult'] == actual_result else 0
+                    updated += 1
+
     if updated > 0:
         print(f"Updated {updated} predictions with actual results")
-    
+
     return history_df
 
 def calculate_accuracy(history_df):
