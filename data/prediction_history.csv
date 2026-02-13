@@ -26,6 +26,6 @@ PredictionDate,Date,HomeTeam,AwayTeam,PredResult,ActualResult,Correct,MatchDate
 2026-02-10,2026-02-11,Crystal Palace,Burnley,D,A,0.0,2026-02-11
 2026-02-10,2026-02-11,Man City,Fulham,H,H,1.0,2026-02-11
 2026-02-10,2026-02-11,Sunderland,Liverpool,D,A,0.0,2026-02-11
-2026-02-10,,Brentford,Arsenal,A,,,2026-02-12
+2026-02-10,2026-02-12,Brentford,Arsenal,A,D,0.0,2026-02-12
 2026-02-11,2026-02-10,Chelsea,Leeds,D,D,1.0,2026-02-10
 2026-02-11,2026-02-11,Nott'm Forest,Wolves,D,D,1.0,2026-02-11
