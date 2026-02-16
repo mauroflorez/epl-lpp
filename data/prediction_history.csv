@@ -1,31 +1,41 @@
 PredictionDate,Date,HomeTeam,AwayTeam,PredResult,ActualResult,Correct,MatchDate
-2026-01-28,2026-01-25,Everton,Leeds,A,A,1.0,
-2026-01-28,2026-01-25,Leeds,Arsenal,A,A,1.0,
-2026-01-28,2026-01-25,Wolves,Bournemouth,A,A,1.0,
-2026-01-28,2026-01-25,Brighton,Everton,D,H,0.0,
-2026-01-28,2026-01-25,Chelsea,West Ham,A,H,0.0,
-2026-01-28,2026-01-25,Liverpool,Newcastle,D,H,0.0,
-2026-01-28,2026-01-25,Aston Villa,Brentford,H,H,1.0,
-2026-01-28,2026-01-25,Man United,Fulham,D,D,1.0,
-2026-01-28,2026-01-26,Nott'm Forest,Crystal Palace,A,H,0.0,
-2026-01-28,2026-01-26,Tottenham,Man City,A,A,1.0,
-2026-01-28,2026-01-26,Sunderland,Burnley,A,A,1.0,
-2026-02-02,2026-02-02,Sunderland,Burnley,D,H,0.0,
-2026-02-09,2026-02-07,Man United,Tottenham,A,H,0.0,2026-02-07
-2026-02-09,2026-02-07,Bournemouth,Aston Villa,A,D,0.0,2026-02-07
-2026-02-09,2026-02-07,Arsenal,Sunderland,H,H,1.0,2026-02-07
-2026-02-09,2026-02-07,Burnley,West Ham,D,A,0.0,2026-02-07
-2026-02-09,2026-02-07,Fulham,Everton,D,A,0.0,2026-02-07
-2026-02-09,2026-02-07,Newcastle,Brentford,H,A,0.0,2026-02-07
-2026-02-09,2026-02-08,Brighton,Crystal Palace,A,A,1.0,2026-02-08
-2026-02-09,2026-02-08,Liverpool,Man City,A,A,1.0,2026-02-08
-2026-02-10,2026-02-10,Everton,Bournemouth,A,A,1.0,2026-02-10
-2026-02-10,2026-02-10,Tottenham,Newcastle,D,A,0.0,2026-02-10
-2026-02-10,2026-02-10,West Ham,Man United,D,D,1.0,2026-02-10
-2026-02-10,2026-02-11,Aston Villa,Brighton,A,H,0.0,2026-02-11
-2026-02-10,2026-02-11,Crystal Palace,Burnley,D,A,0.0,2026-02-11
-2026-02-10,2026-02-11,Man City,Fulham,H,H,1.0,2026-02-11
-2026-02-10,2026-02-11,Sunderland,Liverpool,D,A,0.0,2026-02-11
-2026-02-10,2026-02-12,Brentford,Arsenal,A,D,0.0,2026-02-12
-2026-02-11,2026-02-10,Chelsea,Leeds,D,D,1.0,2026-02-10
-2026-02-11,2026-02-11,Nott'm Forest,Wolves,D,D,1.0,2026-02-11
+2026-01-28 00:00:00,2026-01-25,Everton,Leeds,A,A,1.0,
+2026-01-28 00:00:00,2026-01-25,Leeds,Arsenal,A,A,1.0,
+2026-01-28 00:00:00,2026-01-25,Wolves,Bournemouth,A,A,1.0,
+2026-01-28 00:00:00,2026-01-25,Brighton,Everton,D,H,0.0,
+2026-01-28 00:00:00,2026-01-25,Chelsea,West Ham,A,H,0.0,
+2026-01-28 00:00:00,2026-01-25,Liverpool,Newcastle,D,H,0.0,
+2026-01-28 00:00:00,2026-01-25,Aston Villa,Brentford,H,H,1.0,
+2026-01-28 00:00:00,2026-01-25,Man United,Fulham,D,D,1.0,
+2026-01-28 00:00:00,2026-01-26,Nott'm Forest,Crystal Palace,A,H,0.0,
+2026-01-28 00:00:00,2026-01-26,Tottenham,Man City,A,A,1.0,
+2026-01-28 00:00:00,2026-01-26,Sunderland,Burnley,A,A,1.0,
+2026-02-02 00:00:00,2026-02-02,Sunderland,Burnley,D,H,0.0,
+2026-02-09 00:00:00,2026-02-07,Man United,Tottenham,A,H,0.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-07,Bournemouth,Aston Villa,A,D,0.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-07,Arsenal,Sunderland,H,H,1.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-07,Burnley,West Ham,D,A,0.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-07,Fulham,Everton,D,A,0.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-07,Newcastle,Brentford,H,A,0.0,2026-02-07 00:00:00
+2026-02-09 00:00:00,2026-02-08,Brighton,Crystal Palace,A,A,1.0,2026-02-08 00:00:00
+2026-02-09 00:00:00,2026-02-08,Liverpool,Man City,A,A,1.0,2026-02-08 00:00:00
+2026-02-10 00:00:00,2026-02-10,Everton,Bournemouth,A,A,1.0,2026-02-10 00:00:00
+2026-02-10 00:00:00,2026-02-10,Tottenham,Newcastle,D,A,0.0,2026-02-10 00:00:00
+2026-02-10 00:00:00,2026-02-10,West Ham,Man United,D,D,1.0,2026-02-10 00:00:00
+2026-02-10 00:00:00,2026-02-11,Aston Villa,Brighton,A,H,0.0,2026-02-11 00:00:00
+2026-02-10 00:00:00,2026-02-11,Crystal Palace,Burnley,D,A,0.0,2026-02-11 00:00:00
+2026-02-10 00:00:00,2026-02-11,Man City,Fulham,H,H,1.0,2026-02-11 00:00:00
+2026-02-10 00:00:00,2026-02-11,Sunderland,Liverpool,D,A,0.0,2026-02-11 00:00:00
+2026-02-10 00:00:00,2026-02-12,Brentford,Arsenal,A,D,0.0,2026-02-12 00:00:00
+2026-02-11 00:00:00,2026-02-10,Chelsea,Leeds,D,D,1.0,2026-02-10 00:00:00
+2026-02-11 00:00:00,2026-02-11,Nott'm Forest,Wolves,D,D,1.0,2026-02-11 00:00:00
+2026-02-16,,Wolves,Arsenal,A,,,2026-02-18
+2026-02-16,,Bournemouth,Man United,A,,,2026-03-20
+2026-02-16,,Man City,Crystal Palace,D,,,2026-03-20
+2026-02-16,,Brighton,Liverpool,D,,,2026-03-21
+2026-02-16,,Fulham,Burnley,H,,,2026-03-21
+2026-02-16,,Everton,Chelsea,A,,,2026-03-21
+2026-02-16,,Leeds,Brentford,D,,,2026-03-21
+2026-02-16,,Newcastle,Sunderland,H,,,2026-03-22
+2026-02-16,,Aston Villa,West Ham,D,,,2026-03-22
+2026-02-16,,Tottenham,Nott'm Forest,H,,,2026-03-22
