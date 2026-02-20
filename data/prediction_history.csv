@@ -29,7 +29,7 @@ PredictionDate,Date,HomeTeam,AwayTeam,PredResult,ActualResult,Correct,MatchDate
 2026-02-10,2026-02-12,Brentford,Arsenal,A,D,0.0,2026-02-12
 2026-02-11,2026-02-10,Chelsea,Leeds,D,D,1.0,2026-02-10
 2026-02-11,2026-02-11,Nott'm Forest,Wolves,D,D,1.0,2026-02-11
-2026-02-16,,Wolves,Arsenal,A,,,2026-02-18
+2026-02-16,2026-02-18,Wolves,Arsenal,A,D,0.0,2026-02-18
 2026-02-16,,Bournemouth,Man United,A,,,2026-03-20
 2026-02-16,,Man City,Crystal Palace,D,,,2026-03-20
 2026-02-16,,Brighton,Liverpool,D,,,2026-03-21
